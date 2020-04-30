@@ -26,7 +26,8 @@
         <p>We can also cite <dt-cite key="gregor2015draw"></dt-cite> external publications.</p>
         <p>Also this a footnote. <dt-fn>This will become a hoverable footnote.</dt-fn> </p>
 
-        <figure id="tree" style="height:600px;">
+        <figure id="tree" style="height:600px;width:100%;margin:0;background:#000b2a">
+          <svg style="background:#000b2a; margin: 0 auto; display:block; width:1700px; height:500px;"></svg>
         </figure>
       </dt-article>
 
@@ -48,6 +49,22 @@
     <script src="https://d3js.org/d3.v5.min.js"></script>
 
     <script>
+
+      class Node {
+        constructor(x, y, state, parent, toPlay) {
+          this.x = x;
+          this.y = y;
+          this.state = state;
+          this.parent = parent
+          this.children = []
+          this.toPlay = toPlay
+
+          if (this.parent != null) {
+            this.parent.children.push(this);
+          }
+        }
+      }
+
        const kPath = `M78.3,96.5c-0.1,0.4-0.5,0.6-1.1,0.6H64.9c-0.7,0-1.4-0.3-1.9-1l-20.3-26L37,75.5v20.1 c0,0.9-0.5,1.4-1.4,1.4H26c-0.9,0-1.4-0.5-1.4-1.4V3.9c0-0.9,0.5-1.4,1.4-1.4h9.5C36.5,2.5,37,3,37,3.9v56.5l24.3-24.7 c0.6-0.6,1.3-1,1.9-1H76c0.6,0,0.9,0.2,1.1,0.7c0.2,0.6,0.1,1-0.1,1.2l-25.7,25L78,95.1C78.4,95.5,78.5,95.9,78.3,96.5z`;
        const goose1Path = `M8.8,92.7c-4-18.5,4.7-37.2,20.7-46.2c0,0,2.7-1.4,3.4-1.9c2.2-1.6,3-2.1,3-5c0-5-2.1-7.2-2.1-7.2 c-3.9-3.3-6.3-8.2-6.3-13.7c0-10,8.1-18.1,18.1-18.1s18.1,8.1,18.1,18.1c0,6-1.5,32.7-2.3,38.8l-0.1,1`;
        const goose2Path = `M27.4,19L8.2,27.6c0,0-7.3,2.9,2.6,5c6.1,1.3,24,5.9,24,5.9l1,0.3`;
@@ -68,49 +85,103 @@
           .attr('stroke-width', '13')
       }
 
-      function placeKagglePiece(containerId, x, y) {
+      function placeGoosePiece(container, x, y) {
+        let svg = container
+            .append('svg')
+            .attr('x', x)
+            .attr('y', y)
+
+
+        // outer circle
+        svg.append('circle')
+            .attr('cx', 80)
+            .attr('cy', 80)
+            .attr('r', 75)
+            .attr('fill', 'rgba(255, 255, 255, 0.5)')
+            .attr('stroke', 'rgba(255, 255, 255, 0.5)')
+            .attr('stroke-width', '3')
+        
+        // inner circle
+        svg.append('circle')
+            .attr('cx', 80)
+            .attr('cy', 80)
+            .attr('r', 60)
+            .attr('fill', 'none')
+            .attr('stroke', 'rgba(255, 255, 255, 0.5)')
+            .attr('stroke-width', '2')
+
+        // goose
+        var goose = svg.append('svg').attr('stroke', 'black').attr('fill', 'rgba(0,0,0,0)');
+        goose.append('path')
+          .attr('d', goose1Path)
+          .attr('stroke', 'rgba(255, 255, 255, 1)')
+          .attr('stroke-width', '2')
+        goose.append('path')
+          .attr('d', goose2Path)
+          .attr('stroke', 'rgba(255, 255, 255, 1)')
+          .attr('stroke-width', '2')
+        goose.append('path')
+          .attr('d', goose3Path)
+          .attr('stroke', 'rgba(255, 255, 255, 1)')
+          .attr('stroke-width', '2')
+        goose.attr('x', '35')
+        goose.attr('y', '35') 
+      }
+
+      function placeKagglePiece(container, x, y) {
         // Build the kaggle game piece logo and place inside SVG
 
-        let container = d3.select(containerId)
+        let svg = container
           .append('svg')
           .attr('x', x)
           .attr('y', y)
 
         // outer circle
-        container.append('circle')
-            .attr('cx', 100)
-            .attr('cy', 100)
+        svg.append('circle')
+            .attr('cx', 80)
+            .attr('cy', 80)
             .attr('r', 75)
             .attr('fill', 'rgba(0, 255, 255, 0.5)')
             .attr('stroke', 'rgba(0, 255, 255, 0.5)')
             .attr('stroke-width', '3')
 
         // inner circle
-        container.append('circle')
-            .attr('cx', 100)
-            .attr('cy', 100)
+        svg.append('circle')
+            .attr('cx', 80)
+            .attr('cy', 80)
             .attr('r', 60)
             .attr('fill', 'none')
             .attr('stroke', 'rgba(0, 255, 255, 0.5)')
             .attr('stroke-width', '2')
 
         // kaggle logo
-        var kaggle = container.append('svg')
+        var kaggle = svg.append('svg')
             .attr('stroke', 'black')
             .attr('fill', 'rgba(0,0,0,0)')
             .attr('viewBox', '0 0 100 100')
             .attr('height', '80')
             .attr('width', '80')
+
         kaggle.append('path')
             .attr('d', kPath)
             .attr('stroke', 'rgba(0, 255, 255, 1)')
             .attr('stroke-width', '2')
             .attr('scale', '0.6')
-        kaggle.attr('x', '60')
-        kaggle.attr('y', '60') 
+        kaggle.attr('x', '40')
+        kaggle.attr('y', '40') 
       }
 
-      function placeEmptyBoard(containerId, x, y) {
+      function placeLine(containerId, x1, y1, x2, y2) {
+        let container = d3.select(containerId)
+          .append('line')
+          .attr('x1', x1)
+          .attr('y1', y1)
+          .attr('x2', x2)
+          .attr('y2', y2)
+          .attr('stroke', 'white')
+      }
+
+      function placeBoard(containerId, node) {
 
         let container = d3.select(containerId)
           .append('svg')
@@ -118,34 +189,192 @@
           .attr('width', 63)
           .attr('viewBox', "0 0 672 160")
           .attr('style', 'background:#000b2a')
+          .attr('x', node.x)
+          .attr('y', node.y)
 
           let margin = 10
-          placeEmptySlot(container, x + 0,   y + 0);
-          placeEmptySlot(container, x + 160 + margin, y + 0);
-          placeEmptySlot(container, x + 320 + margin + margin, y + 0);
-          placeEmptySlot(container, x + 480 + margin + margin + margin, y + 0);
+          placeEmptySlot(container, 0,   0);
+          placeEmptySlot(container, 160 + margin, 0);
+          placeEmptySlot(container, 320 + margin + margin, 0);
+          placeEmptySlot(container, 480 + margin + margin + margin, 0);
+
+          let xOffset = 0
+          let yOffset = 0
+          for(let i = 0; i < node.state.length; i++) {
+            if (node.state[i] == 1) {
+              placeKagglePiece(container, xOffset, yOffset)
+            } else if (node.state[i] == -1) {
+              placeGoosePiece(container, xOffset, yOffset)
+            }
+            else {
+
+            }
+
+            xOffset = xOffset + 160 + margin
+          }
       }
 
-      function getGoose(x,y) {
-      }
-        
-        // Slot: https://svgshare.com/i/KZq.svg
-        // Kaggle: https://svgshare.com/i/KZp.svg
-        // Goose: https://svgshare.com/i/Kbe.svg
+      let width = 1700
+
+      root = new Node(x=860, y=0, state=[0,0,0,0], parent=null, toPlay=1)
+      placeBoard("#tree svg", root)
+
+      y = 100
+      r1c1 = new Node(x=1*1700/4/2, y=y, state=[1,  0,  0,  0], parent=root, toplay=-1)
+      r1c2 = new Node(x=3*1700/4/2, y=y, state=[0,  1,  0,  0], parent=root, toplay=-1)
+      r1c3 = new Node(x=5*1700/4/2, y=y, state=[0,  0,  1,  0], parent=root, toplay=-1)
+      r1c4 = new Node(x=7*1700/4/2, y=y, state=[0,  0,  0,  1], parent=root, toplay=-1)
+      placeBoard("#tree svg", r1c1)
+      placeBoard("#tree svg", r1c2)
+      placeBoard("#tree svg", r1c3)
+      placeBoard("#tree svg", r1c4)
+
+      y = 200
+      r2c1 = new Node(x=1*1700/12/2/2, y=y, state=[1, -1,  0,  0], parent=r1c1, toPlay=1)
+      r2c2 = new Node(x=4*1700/12/2/2, y=y, state=[1,  0, -1,  0], parent=r1c1, toPlay=1)
+      r2c3 = new Node(x=7*1700/12/2/2, y=y, state=[1,  0,  0, -1], parent=r1c1, toPlay=1)
+      placeBoard("#tree svg", r2c1)
+      placeBoard("#tree svg", r2c2)
+      placeBoard("#tree svg", r2c3)
+      
+      r2c4 = new Node(x=14*1700/12/2/2, y=y, state=[-1,  1,  0,  0], parent=r1c1, toPlay=1)
+      r2c5 = new Node(x=17*1700/12/2/2, y=y, state=[ 0,  1, -1,  0], parent=r1c2, toPlay=1)
+      r2c6 = new Node(x=20*1700/12/2/2, y=y, state=[ 0,  1,  0, -1], parent=r1c2, toPlay=1)
+      placeBoard("#tree svg", r2c4)
+      placeBoard("#tree svg", r2c5)
+      placeBoard("#tree svg", r2c6)
+      
+      r2c7 = new Node(x=28*1700/12/2/2, y=y, state=[-1,  0,  1,  0], parent=r1c3, toPlay=1)
+      r2c8 = new Node(x=31*1700/12/2/2, y=y, state=[ 0, -1,  1,  0], parent=r1c3, toPlay=1)
+      r2c9 = new Node(x=34*1700/12/2/2, y=y, state=[ 0,  0,  1, -1], parent=r1c3, toPlay=1)
+      placeBoard("#tree svg", r2c7)
+      placeBoard("#tree svg", r2c8)
+      placeBoard("#tree svg", r2c9)
+      
+      r2c10 = new Node(x=39*1700/12/2/2, y=y, state=[-1,  0,  0,  1], parent=r1c3, toPlay=1)
+      r2c11 = new Node(x=42*1700/12/2/2, y=y, state=[ 0, -1,  0,  1], parent=r1c3, toPlay=1)
+      r2c12 = new Node(x=45*1700/12/2/2, y=y, state=[ 0,  0, -1,  1], parent=r1c3, toPlay=1)
+      placeBoard("#tree svg", r2c10)
+      placeBoard("#tree svg", r2c11)
+      placeBoard("#tree svg", r2c12)
+
+      y=300
+      r3c1 = new Node(x=0*1700/12/2/2, y=y, state=[ 1, -1,  1,  0], parent=r2c1, toPlay=-1)
+      r3c2 = new Node(x=2*1700/12/2/2, y=y, state=[ 1, -1,  0,  1], parent=r2c1, toPlay=-1)
+      placeBoard("#tree svg", r3c1)
+      placeBoard("#tree svg", r3c2)
+      
+      r3c3 = new Node(x=4*1700/12/2/2, y=y, state=[ 1,  1, -1,  0], parent=r2c2, toPlay=-1)
+      r3c4 = new Node(x=6*1700/12/2/2, y=y, state=[ 1,  0, -1,  1], parent=r2c2, toPlay=-1)
+      placeBoard("#tree svg", r3c3)
+      placeBoard("#tree svg", r3c4)
+
+      r3c5 = new Node(x=8*1700/12/2/2, y=y,  state=[ 1,  1,  0, -1], parent=r2c3, toPlay=-1)
+      r3c6 = new Node(x=10*1700/12/2/2, y=y, state=[ 1,  0,  1, -1], parent=r2c3, toPlay=-1)
+      placeBoard("#tree svg", r3c5)
+      placeBoard("#tree svg", r3c6)
+      
+      r3c7 = new Node(x=12*1700/12/2/2, y=y, state=[-1,  1,  1,  0], parent=r2c4, toPlay=-1)
+      r3c8 = new Node(x=14*1700/12/2/2, y=y, state=[-1,  1,  0,  1], parent=r2c4, toPlay=-1)
+      placeBoard("#tree svg", r3c7)
+      placeBoard("#tree svg", r3c8)
+      
+      r3c9  = new Node(x=16*1700/12/2/2, y=y, state=[ 1,  1, -1,  0], parent=r2c5, toPlay=-1)
+      r3c10 = new Node(x=18*1700/12/2/2, y=y, state=[ 0,  1, -1,  1], parent=r2c5, toPlay=-1)
+      placeBoard("#tree svg", r3c9)
+      placeBoard("#tree svg", r3c10)
+      
+      r3c11 = new Node(x=20*1700/12/2/2, y=y, state=[ 1,  1,  0, -1], parent=r2c6, toPlay=-1)
+      r3c12 = new Node(x=22*1700/12/2/2, y=y, state=[ 0,  1,  1, -1], parent=r2c6, toPlay=-1)
+      placeBoard("#tree svg", r3c11)
+      placeBoard("#tree svg", r3c12)
+      
+      r3c13 = new Node(x=24*1700/12/2/2, y=y, state=[-1,  1,  1,  0], parent=r2c7, toPlay=-1)
+      r3c14 = new Node(x=26*1700/12/2/2, y=y, state=[-1,  0,  1,  1], parent=r2c7, toPlay=-1)
+      placeBoard("#tree svg", r3c13)
+      placeBoard("#tree svg", r3c14)
+      
+      r3c15 = new Node(x=28*1700/12/2/2, y=y, state=[ 1, -1,  1,  0], parent=r2c8, toPlay=-1)
+      r3c16 = new Node(x=30*1700/12/2/2, y=y, state=[ 0, -1,  1,  1], parent=r2c8, toPlay=-1)
+      placeBoard("#tree svg", r3c15)
+      placeBoard("#tree svg", r3c16)
+      
+      r3c17 = new Node(x=32*1700/12/2/2, y=y, state=[ 1,  0,  1, -1], parent=r2c9, toPlay=-1)
+      r3c18 = new Node(x=34*1700/12/2/2, y=y, state=[ 0,  1,  1, -1], parent=r2c9, toPlay=-1)
+      placeBoard("#tree svg", r3c17)
+      placeBoard("#tree svg", r3c18)
+      
+      r3c19 = new Node(x=36*1700/12/2/2, y=y, state=[-1,  1,  0,  1], parent=r2c10, toPlay=-1)
+      r3c20 = new Node(x=38*1700/12/2/2, y=y, state=[-1,  0,  1,  1], parent=r2c10, toPlay=-1)
+      placeBoard("#tree svg", r3c19)
+      placeBoard("#tree svg", r3c20)
+      
+      r3c21 = new Node(x=40*1700/12/2/2, y=y, state=[ 1, -1,  0,  1], parent=r2c11, toPlay=-1)
+      r3c22 = new Node(x=42*1700/12/2/2, y=y, state=[ 0, -1,  1,  1], parent=r2c11, toPlay=-1)
+      placeBoard("#tree svg", r3c21)
+      placeBoard("#tree svg", r3c22)
+      
+      r3c23 = new Node(x=44*1700/12/2/2, y=y, state=[ 1,  0, -1,  1], parent=r2c12, toPlay=-1)
+      r3c24 = new Node(x=46*1700/12/2/2, y=y, state=[ 0,  1, -1,  1], parent=r2c12, toPlay=-1)
+      placeBoard("#tree svg", r3c23)
+      placeBoard("#tree svg", r3c24)
+
+      y = 400
+      r4c1 = new Node(x=0*1700/12/2/2, y=y, state=[ 1, -1,  1, -1], parent=r3c1, toPlay=-1)
+      r4c2 = new Node(x=2*1700/12/2/2, y=y, state=[ 1, -1, -1,  1], parent=r3c2, toPlay=-1)
+      placeBoard("#tree svg", r4c1)
+      placeBoard("#tree svg", r4c2)
+
+      r4c3 = new Node(x=6*1700/12/2/2, y=y, state=[ 1, -1, -1,  1], parent=r3c4, toPlay=1)
+      placeBoard("#tree svg", r4c3)
+
+      r4c4 = new Node(x=10*1700/12/2/2, y=y, state=[ 1, -1,  1, -1], parent=r3c6, toPlay=1)
+      placeBoard("#tree svg", r4c4)
+
+      r4c5 = new Node(x=14*1700/12/2/2, y=y, state=[-1,  1, -1,  1], parent=r3c8, toPlay=1)
+      placeBoard("#tree svg", r4c5)
+
+      r4c6 = new Node(x=18*1700/12/2/2, y=y, state=[-1,  1, -1,  1], parent=r3c10, toPlay=1)
+      placeBoard("#tree svg", r4c6)
+
+      r4c7 = new Node(x=28*1700/12/2/2, y=y, state=[-1,  1,  1, -1], parent=r3c15, toPlay=1)
+      placeBoard("#tree svg", r4c7)
+
+      r4c8 = new Node(x=32*1700/12/2/2, y=y, state=[ 1, -1,  1, -1], parent=r3c17, toPlay=1)
+      placeBoard("#tree svg", r4c8)
+
+      r4c9 = new Node(x=36*1700/12/2/2, y=y, state=[-1,  1, -1,  1], parent=r3c19, toPlay=1)
+      placeBoard("#tree svg", r4c9)
+
+      r4c10 = new Node(x=40*1700/12/2/2, y=y, state=[ 1, -1, -1,  1], parent=r3c21, toPlay=1)
+      placeBoard("#tree svg", r4c10)
+
+      r4c11 = new Node(x=44*1700/12/2/2, y=y, state=[ 1, -1, -1,  1], parent=r3c23, toPlay=1)
+      r4c12 = new Node(x=46*1700/12/2/2, y=y, state=[-1,  1, -1,  1], parent=r3c24, toPlay=1)
+      placeBoard("#tree svg", r4c11)
+      placeBoard("#tree svg", r4c12)
+
+      // Place lines
+      placeLine("#tree svg", 10, 10, 50, 50);
 
 
-        placeEmptyBoard("#tree", 0, 0)
 
-        //placeKagglePiece("#tree svg", 5, 5);
 
-        // figure.append('circle')
-        //     .attr('cx', 100)
-        //     .attr('cy', 100)
-        //     .attr('r', 75)
-        //     .attr('fill', 'rgba(0, 0, 0, 0)')
-        //     .attr('stroke', 'rgba(0, 0, 255, 0.5)')
-        //     .attr('stroke-width', '2')
 
+
+      // x = 1700/12/2/2;
+      // y = 200
+      // for (let i = 0; i < 12; i++) {
+      //   placeEmptyBoard("#tree svg", x, y)
+      //   x = x + 1700/12;
+      // }
+      
+      // x = 0
+      // y = 300
+      // for (let i = 0; i < 24; i++) {
+      //   placeEmptyBoard("#tree svg", x, y)
+      //   x = x + 1700/24;
+      // }
 
     </script>
 </body>
