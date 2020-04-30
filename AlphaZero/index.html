@@ -70,6 +70,23 @@
        const goose2Path = `M27.4,19L8.2,27.6c0,0-7.3,2.9,2.6,5c6.1,1.3,24,5.9,24,5.9l1,0.3`;
        const goose3Path =  `M63.7,99.6C52.3,99.6,43,90.3,43,78.9s9.3-20.7,20.7-20.7c10.6,0,34.4,0.1,35.8,9`;
 
+      function placeEdges(node) {
+
+        for (var i = 0; i < node.children.length; i++) {
+
+          //Recursively place edges
+          placeEdges(node.children[i]);
+
+          //Draw edge for this child
+          let x1 = node.x + 32
+          let y1 = node.y + 18
+          let x2 = node.children[i].x + 32
+          let y2 = node.children[i].y - 10
+
+          placeLine("#tree svg", x1, y1, x2, y2);
+        }
+      }
+
       function placeEmptySlot(container, x, y) {
 
         container
@@ -178,7 +195,7 @@
           .attr('y1', y1)
           .attr('x2', x2)
           .attr('y2', y2)
-          .attr('stroke', 'white')
+          .attr('stroke', 'rgba(255, 255, 255, 0.5')
       }
 
       function placeBoard(containerId, node) {
@@ -216,146 +233,146 @@
 
       let width = 1700
 
-      root = new Node(x=860, y=0, state=[0,0,0,0], parent=null, toPlay=1)
+      let root = new Node(860, 0, [0,0,0,0], null, 1)
       placeBoard("#tree svg", root)
 
-      y = 100
-      r1c1 = new Node(x=1*1700/4/2, y=y, state=[1,  0,  0,  0], parent=root, toplay=-1)
-      r1c2 = new Node(x=3*1700/4/2, y=y, state=[0,  1,  0,  0], parent=root, toplay=-1)
-      r1c3 = new Node(x=5*1700/4/2, y=y, state=[0,  0,  1,  0], parent=root, toplay=-1)
-      r1c4 = new Node(x=7*1700/4/2, y=y, state=[0,  0,  0,  1], parent=root, toplay=-1)
+      let y = 100
+      let r1c1 = new Node(1*1700/4/2, y, [1,  0,  0,  0], root, -1)
+      let r1c2 = new Node(3*1700/4/2, y, [0,  1,  0,  0], root, -1)
+      let r1c3 = new Node(5*1700/4/2, y, [0,  0,  1,  0], root, -1)
+      let r1c4 = new Node(7*1700/4/2, y, [0,  0,  0,  1], root, -1)
       placeBoard("#tree svg", r1c1)
       placeBoard("#tree svg", r1c2)
       placeBoard("#tree svg", r1c3)
       placeBoard("#tree svg", r1c4)
 
       y = 200
-      r2c1 = new Node(x=1*1700/12/2/2, y=y, state=[1, -1,  0,  0], parent=r1c1, toPlay=1)
-      r2c2 = new Node(x=4*1700/12/2/2, y=y, state=[1,  0, -1,  0], parent=r1c1, toPlay=1)
-      r2c3 = new Node(x=7*1700/12/2/2, y=y, state=[1,  0,  0, -1], parent=r1c1, toPlay=1)
+      let r2c1 = new Node(1*1700/12/2/2, y, [1, -1,  0,  0], r1c1, 1)
+      let r2c2 = new Node(4*1700/12/2/2, y, [1,  0, -1,  0], r1c1, 1)
+      let r2c3 = new Node(7*1700/12/2/2, y, [1,  0,  0, -1], r1c1, 1)
       placeBoard("#tree svg", r2c1)
       placeBoard("#tree svg", r2c2)
       placeBoard("#tree svg", r2c3)
       
-      r2c4 = new Node(x=14*1700/12/2/2, y=y, state=[-1,  1,  0,  0], parent=r1c1, toPlay=1)
-      r2c5 = new Node(x=17*1700/12/2/2, y=y, state=[ 0,  1, -1,  0], parent=r1c2, toPlay=1)
-      r2c6 = new Node(x=20*1700/12/2/2, y=y, state=[ 0,  1,  0, -1], parent=r1c2, toPlay=1)
+      let r2c4 = new Node(14*1700/12/2/2, y, [-1,  1,  0,  0], r1c1, 1)
+      let r2c5 = new Node(17*1700/12/2/2, y, [ 0,  1, -1,  0], r1c2, 1)
+      let r2c6 = new Node(20*1700/12/2/2, y, [ 0,  1,  0, -1], r1c2, 1)
       placeBoard("#tree svg", r2c4)
       placeBoard("#tree svg", r2c5)
       placeBoard("#tree svg", r2c6)
       
-      r2c7 = new Node(x=28*1700/12/2/2, y=y, state=[-1,  0,  1,  0], parent=r1c3, toPlay=1)
-      r2c8 = new Node(x=31*1700/12/2/2, y=y, state=[ 0, -1,  1,  0], parent=r1c3, toPlay=1)
-      r2c9 = new Node(x=34*1700/12/2/2, y=y, state=[ 0,  0,  1, -1], parent=r1c3, toPlay=1)
+      let r2c7 = new Node(28*1700/12/2/2, y, [-1,  0,  1,  0], r1c3, 1)
+      let r2c8 = new Node(31*1700/12/2/2, y, [ 0, -1,  1,  0], r1c3, 1)
+      let r2c9 = new Node(34*1700/12/2/2, y, [ 0,  0,  1, -1], r1c3, 1)
       placeBoard("#tree svg", r2c7)
       placeBoard("#tree svg", r2c8)
       placeBoard("#tree svg", r2c9)
       
-      r2c10 = new Node(x=39*1700/12/2/2, y=y, state=[-1,  0,  0,  1], parent=r1c3, toPlay=1)
-      r2c11 = new Node(x=42*1700/12/2/2, y=y, state=[ 0, -1,  0,  1], parent=r1c3, toPlay=1)
-      r2c12 = new Node(x=45*1700/12/2/2, y=y, state=[ 0,  0, -1,  1], parent=r1c3, toPlay=1)
+      let r2c10 = new Node(39*1700/12/2/2, y, [-1,  0,  0,  1], r1c4, 1)
+      let r2c11 = new Node(42*1700/12/2/2, y, [ 0, -1,  0,  1], r1c4, 1)
+      let r2c12 = new Node(45*1700/12/2/2, y, [ 0,  0, -1,  1], r1c4, 1)
       placeBoard("#tree svg", r2c10)
       placeBoard("#tree svg", r2c11)
       placeBoard("#tree svg", r2c12)
 
-      y=300
-      r3c1 = new Node(x=0*1700/12/2/2, y=y, state=[ 1, -1,  1,  0], parent=r2c1, toPlay=-1)
-      r3c2 = new Node(x=2*1700/12/2/2, y=y, state=[ 1, -1,  0,  1], parent=r2c1, toPlay=-1)
+      y = 300
+      let r3c1 = new Node(0*1700/12/2/2, y, [ 1, -1,  1,  0], r2c1, -1)
+      let r3c2 = new Node(2*1700/12/2/2, y, [ 1, -1,  0,  1], r2c1, -1)
       placeBoard("#tree svg", r3c1)
       placeBoard("#tree svg", r3c2)
       
-      r3c3 = new Node(x=4*1700/12/2/2, y=y, state=[ 1,  1, -1,  0], parent=r2c2, toPlay=-1)
-      r3c4 = new Node(x=6*1700/12/2/2, y=y, state=[ 1,  0, -1,  1], parent=r2c2, toPlay=-1)
+      let r3c3 = new Node(4*1700/12/2/2, y, [ 1,  1, -1,  0], r2c2, -1)
+      let r3c4 = new Node(6*1700/12/2/2, y, [ 1,  0, -1,  1], r2c2, -1)
       placeBoard("#tree svg", r3c3)
       placeBoard("#tree svg", r3c4)
 
-      r3c5 = new Node(x=8*1700/12/2/2, y=y,  state=[ 1,  1,  0, -1], parent=r2c3, toPlay=-1)
-      r3c6 = new Node(x=10*1700/12/2/2, y=y, state=[ 1,  0,  1, -1], parent=r2c3, toPlay=-1)
+      let r3c5 = new Node(8*1700/12/2/2, y,  [ 1,  1,  0, -1], r2c3, -1)
+      let r3c6 = new Node(10*1700/12/2/2, y, [ 1,  0,  1, -1], r2c3, -1)
       placeBoard("#tree svg", r3c5)
       placeBoard("#tree svg", r3c6)
       
-      r3c7 = new Node(x=12*1700/12/2/2, y=y, state=[-1,  1,  1,  0], parent=r2c4, toPlay=-1)
-      r3c8 = new Node(x=14*1700/12/2/2, y=y, state=[-1,  1,  0,  1], parent=r2c4, toPlay=-1)
+      let r3c7 = new Node(12*1700/12/2/2, y, [-1,  1,  1,  0], r2c4, -1)
+      let r3c8 = new Node(14*1700/12/2/2, y, [-1,  1,  0,  1], r2c4, -1)
       placeBoard("#tree svg", r3c7)
       placeBoard("#tree svg", r3c8)
       
-      r3c9  = new Node(x=16*1700/12/2/2, y=y, state=[ 1,  1, -1,  0], parent=r2c5, toPlay=-1)
-      r3c10 = new Node(x=18*1700/12/2/2, y=y, state=[ 0,  1, -1,  1], parent=r2c5, toPlay=-1)
+      let r3c9  = new Node(16*1700/12/2/2, y, [ 1,  1, -1,  0], r2c5, -1)
+      let r3c10 = new Node(18*1700/12/2/2, y, [ 0,  1, -1,  1], r2c5, -1)
       placeBoard("#tree svg", r3c9)
       placeBoard("#tree svg", r3c10)
       
-      r3c11 = new Node(x=20*1700/12/2/2, y=y, state=[ 1,  1,  0, -1], parent=r2c6, toPlay=-1)
-      r3c12 = new Node(x=22*1700/12/2/2, y=y, state=[ 0,  1,  1, -1], parent=r2c6, toPlay=-1)
+      let r3c11 = new Node(20*1700/12/2/2, y, [ 1,  1,  0, -1], r2c6, -1)
+      let r3c12 = new Node(22*1700/12/2/2, y, [ 0,  1,  1, -1], r2c6, -1)
       placeBoard("#tree svg", r3c11)
       placeBoard("#tree svg", r3c12)
       
-      r3c13 = new Node(x=24*1700/12/2/2, y=y, state=[-1,  1,  1,  0], parent=r2c7, toPlay=-1)
-      r3c14 = new Node(x=26*1700/12/2/2, y=y, state=[-1,  0,  1,  1], parent=r2c7, toPlay=-1)
+      let r3c13 = new Node(24*1700/12/2/2, y, [-1,  1,  1,  0], r2c7, -1)
+      let r3c14 = new Node(26*1700/12/2/2, y, [-1,  0,  1,  1], r2c7, -1)
       placeBoard("#tree svg", r3c13)
       placeBoard("#tree svg", r3c14)
       
-      r3c15 = new Node(x=28*1700/12/2/2, y=y, state=[ 1, -1,  1,  0], parent=r2c8, toPlay=-1)
-      r3c16 = new Node(x=30*1700/12/2/2, y=y, state=[ 0, -1,  1,  1], parent=r2c8, toPlay=-1)
+      let r3c15 = new Node(28*1700/12/2/2, y, [ 1, -1,  1,  0], r2c8, -1)
+      let r3c16 = new Node(30*1700/12/2/2, y, [ 0, -1,  1,  1], r2c8, -1)
       placeBoard("#tree svg", r3c15)
       placeBoard("#tree svg", r3c16)
       
-      r3c17 = new Node(x=32*1700/12/2/2, y=y, state=[ 1,  0,  1, -1], parent=r2c9, toPlay=-1)
-      r3c18 = new Node(x=34*1700/12/2/2, y=y, state=[ 0,  1,  1, -1], parent=r2c9, toPlay=-1)
+      let r3c17 = new Node(32*1700/12/2/2, y, [ 1,  0,  1, -1], r2c9, -1)
+      let r3c18 = new Node(34*1700/12/2/2, y, [ 0,  1,  1, -1], r2c9, -1)
       placeBoard("#tree svg", r3c17)
       placeBoard("#tree svg", r3c18)
       
-      r3c19 = new Node(x=36*1700/12/2/2, y=y, state=[-1,  1,  0,  1], parent=r2c10, toPlay=-1)
-      r3c20 = new Node(x=38*1700/12/2/2, y=y, state=[-1,  0,  1,  1], parent=r2c10, toPlay=-1)
+      let r3c19 = new Node(36*1700/12/2/2, y, [-1,  1,  0,  1], r2c10, -1)
+      let r3c20 = new Node(38*1700/12/2/2, y, [-1,  0,  1,  1], r2c10, -1)
       placeBoard("#tree svg", r3c19)
       placeBoard("#tree svg", r3c20)
       
-      r3c21 = new Node(x=40*1700/12/2/2, y=y, state=[ 1, -1,  0,  1], parent=r2c11, toPlay=-1)
-      r3c22 = new Node(x=42*1700/12/2/2, y=y, state=[ 0, -1,  1,  1], parent=r2c11, toPlay=-1)
+      let r3c21 = new Node(40*1700/12/2/2, y, [ 1, -1,  0,  1], r2c11, -1)
+      let r3c22 = new Node(42*1700/12/2/2, y, [ 0, -1,  1,  1], r2c11, -1)
       placeBoard("#tree svg", r3c21)
       placeBoard("#tree svg", r3c22)
       
-      r3c23 = new Node(x=44*1700/12/2/2, y=y, state=[ 1,  0, -1,  1], parent=r2c12, toPlay=-1)
-      r3c24 = new Node(x=46*1700/12/2/2, y=y, state=[ 0,  1, -1,  1], parent=r2c12, toPlay=-1)
+      let r3c23 = new Node(44*1700/12/2/2, y, [ 1,  0, -1,  1], r2c12, -1)
+      let r3c24 = new Node(46*1700/12/2/2, y, [ 0,  1, -1,  1], r2c12, -1)
       placeBoard("#tree svg", r3c23)
       placeBoard("#tree svg", r3c24)
 
       y = 400
-      r4c1 = new Node(x=0*1700/12/2/2, y=y, state=[ 1, -1,  1, -1], parent=r3c1, toPlay=-1)
-      r4c2 = new Node(x=2*1700/12/2/2, y=y, state=[ 1, -1, -1,  1], parent=r3c2, toPlay=-1)
+      let r4c1 = new Node(0*1700/12/2/2, y, [ 1, -1,  1, -1], r3c1, -1)
+      let r4c2 = new Node(2*1700/12/2/2, y, [ 1, -1, -1,  1], r3c2, -1)
       placeBoard("#tree svg", r4c1)
       placeBoard("#tree svg", r4c2)
 
-      r4c3 = new Node(x=6*1700/12/2/2, y=y, state=[ 1, -1, -1,  1], parent=r3c4, toPlay=1)
+      let r4c3 = new Node(6*1700/12/2/2, y, [ 1, -1, -1,  1], r3c4, 1)
       placeBoard("#tree svg", r4c3)
 
-      r4c4 = new Node(x=10*1700/12/2/2, y=y, state=[ 1, -1,  1, -1], parent=r3c6, toPlay=1)
+      let r4c4 = new Node(10*1700/12/2/2, y, [ 1, -1,  1, -1], r3c6, 1)
       placeBoard("#tree svg", r4c4)
 
-      r4c5 = new Node(x=14*1700/12/2/2, y=y, state=[-1,  1, -1,  1], parent=r3c8, toPlay=1)
+      let r4c5 = new Node(14*1700/12/2/2, y, [-1,  1, -1,  1], r3c8, 1)
       placeBoard("#tree svg", r4c5)
 
-      r4c6 = new Node(x=18*1700/12/2/2, y=y, state=[-1,  1, -1,  1], parent=r3c10, toPlay=1)
+      let r4c6 = new Node(18*1700/12/2/2, y, [-1,  1, -1,  1], r3c10, 1)
       placeBoard("#tree svg", r4c6)
 
-      r4c7 = new Node(x=28*1700/12/2/2, y=y, state=[-1,  1,  1, -1], parent=r3c15, toPlay=1)
+      let r4c7 = new Node(28*1700/12/2/2, y, [-1,  1,  1, -1], r3c15, 1)
       placeBoard("#tree svg", r4c7)
 
-      r4c8 = new Node(x=32*1700/12/2/2, y=y, state=[ 1, -1,  1, -1], parent=r3c17, toPlay=1)
+      let r4c8 = new Node(32*1700/12/2/2, y, [ 1, -1,  1, -1], r3c17, 1)
       placeBoard("#tree svg", r4c8)
 
-      r4c9 = new Node(x=36*1700/12/2/2, y=y, state=[-1,  1, -1,  1], parent=r3c19, toPlay=1)
+      let r4c9 = new Node(36*1700/12/2/2, y, [-1,  1, -1,  1], r3c19, 1)
       placeBoard("#tree svg", r4c9)
 
-      r4c10 = new Node(x=40*1700/12/2/2, y=y, state=[ 1, -1, -1,  1], parent=r3c21, toPlay=1)
+      let r4c10 = new Node(40*1700/12/2/2, y, [ 1, -1, -1,  1], r3c21, 1)
       placeBoard("#tree svg", r4c10)
 
-      r4c11 = new Node(x=44*1700/12/2/2, y=y, state=[ 1, -1, -1,  1], parent=r3c23, toPlay=1)
-      r4c12 = new Node(x=46*1700/12/2/2, y=y, state=[-1,  1, -1,  1], parent=r3c24, toPlay=1)
+      let r4c11 = new Node(44*1700/12/2/2, y, [ 1, -1, -1,  1], r3c23, 1)
+      let r4c12 = new Node(46*1700/12/2/2, y, [-1,  1, -1,  1], r3c24, 1)
       placeBoard("#tree svg", r4c11)
       placeBoard("#tree svg", r4c12)
 
-      // Place lines
-      placeLine("#tree svg", 10, 10, 50, 50);
+      // Place edges
+      placeEdges(root)
 
 
 
