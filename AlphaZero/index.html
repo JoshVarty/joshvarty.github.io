@@ -79,7 +79,7 @@
 
           //Draw edge for this child
           let x1 = node.x + 32
-          let y1 = node.y + 18
+          let y1 = node.y + 25
           let x2 = node.children[i].x + 32
           let y2 = node.children[i].y - 15
 
@@ -233,14 +233,14 @@
 
       let width = 1700
 
-      let root = new Node(860, 0, [0,0,0,0], null, 1)
+      let root = new Node(860-32, 0, [0,0,0,0], null, 1)
       placeBoard("#tree svg", root)
 
       let y = 100
-      let r1c1 = new Node(1*1700/4/2, y, [1,  0,  0,  0], root, -1)
-      let r1c2 = new Node(3*1700/4/2, y, [0,  1,  0,  0], root, -1)
-      let r1c3 = new Node(5*1700/4/2, y, [0,  0,  1,  0], root, -1)
-      let r1c4 = new Node(7*1700/4/2, y, [0,  0,  0,  1], root, -1)
+      let r1c1 = new Node(2*1700/12/2, y, [1,  0,  0,  0], root, -1)
+      let r1c2 = new Node(9*1700/12/2, y, [0,  1,  0,  0], root, -1)
+      let r1c3 = new Node(14*1700/12/2, y, [0,  0,  1,  0], root, -1)
+      let r1c4 = new Node(21*1700/12/2, y, [0,  0,  0,  1], root, -1)
       placeBoard("#tree svg", r1c1)
       placeBoard("#tree svg", r1c2)
       placeBoard("#tree svg", r1c3)
@@ -254,16 +254,16 @@
       placeBoard("#tree svg", r2c2)
       placeBoard("#tree svg", r2c3)
       
-      let r2c4 = new Node(14*1700/12/2/2, y, [-1,  1,  0,  0], r1c1, 1)
+      let r2c4 = new Node(14*1700/12/2/2, y, [-1,  1,  0,  0], r1c2, 1)
       let r2c5 = new Node(17*1700/12/2/2, y, [ 0,  1, -1,  0], r1c2, 1)
       let r2c6 = new Node(20*1700/12/2/2, y, [ 0,  1,  0, -1], r1c2, 1)
       placeBoard("#tree svg", r2c4)
       placeBoard("#tree svg", r2c5)
       placeBoard("#tree svg", r2c6)
       
-      let r2c7 = new Node(28*1700/12/2/2, y, [-1,  0,  1,  0], r1c3, 1)
-      let r2c8 = new Node(31*1700/12/2/2, y, [ 0, -1,  1,  0], r1c3, 1)
-      let r2c9 = new Node(34*1700/12/2/2, y, [ 0,  0,  1, -1], r1c3, 1)
+      let r2c7 = new Node(26*1700/12/2/2, y, [-1,  0,  1,  0], r1c3, 1)
+      let r2c8 = new Node(29*1700/12/2/2, y, [ 0, -1,  1,  0], r1c3, 1)
+      let r2c9 = new Node(32*1700/12/2/2, y, [ 0,  0,  1, -1], r1c3, 1)
       placeBoard("#tree svg", r2c7)
       placeBoard("#tree svg", r2c8)
       placeBoard("#tree svg", r2c9)
