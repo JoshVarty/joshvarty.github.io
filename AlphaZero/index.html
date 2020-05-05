@@ -24,20 +24,21 @@
 
         <h2>A simpler game</h2>
 
-        <p>When I set out to implement Alpha Zero I wanted to do so on a very simple game. I knew my implementation would be riddled with bugs and that I was going to be spending a lot of time
-          looking at game trees. "I'll use Tic-Tac-Toe" I thought, not realizing there were 255,168 possible ending states.
+        <p>
+          Go has ~2.08x10<sup>170</sup> legal board positions. Chess has ~10<sup>50</sup> legal board positions. Even Tic-Tac-Toe has 5,478 legal board positions.
+          If we're going to have any hope of understanding AlphaZero and MCTS for the first time, we're going to need a simpler game.
 
-          A short wile later I realized that we were going to have to go even simpler. A truly basic game that still allows for wins, losses and draws. 
+          We need a comically simple game that still allows for wins, losses and draws.
         </p>
-        
-          <p>Ladiers and gentlemen, for your consideration: Connect2!</p>
+
+          <p>Ladies and gentlemen, for your consideration: Connect2!</p>
         </p>
         <figure id="value-network" style="width:100%;margin:0;background:#000b2a;padding:25px 0;">
           <img style="max-width:300px; display:block; margin:0 auto;" src="connect2.gif" />
         </figure>
 
         <p>
-          In Connect2 players alternate between playing pieces on a tiny 1x4 board with the goal of placing two of their pieces side-by-side. 
+          In Connect2 players alternate between playing pieces on a tiny <code>1x4</code> board with the goal of placing two of their pieces side-by-side. 
           It's comically easy to win as the first player, but Connect2 still has the interesting property that either player technically has the chance to win, lose or draw. 
           This means we can use it as a test bed to debug and visualize a super-basic implementation of AlphaZero and Monte Carlo Search Trees.
         </p>
@@ -51,7 +52,7 @@
         </figure>
 
         <p>
-          From Player 1's perspective there are:
+          In total, there are 24 terminal states. From Player 1's perspective there are:
           <ul>
             <li>12 terminal states where we WIN</li>
             <li>8 terminal states where we LOSE</li>
@@ -59,11 +60,24 @@
           </ul>          
         </p>
 
+        <h4>Representing the Game</h4>
+        <p>One drawback of AlphaZero is that we need to be able to perfectly simulate the game. This ends up being relatively straightforward for Connect2 but 
+          is much more difficult for games like chess that have more complex rules. The full code for Connect2 is available <a href="https://github.com/JoshVarty/AlphaZeroSimple/blob/ecf72a468aba26b8b155ec6fb1b91697a2fbb7a9/game.py">on GitHub</a>. It contains logic that defines 
+          what moves are valid, how to transition between states and what reward a player should receive.
+        </p>
+        <p>
+          In our implementation we're going to represent a player's own pieces with <code>1</code>, their opponent's pieces with <code>-1</code> and an empty space as <code>0</code>. So the initial starting state looks like <code>[0,0,0,0]</code>. The player who wins the game will receive a reward of <code>1</code> and the player who loses will receive <code>-1</code>. Draws will receive a reward of <code>0</code>.
+        </p>
+        <p><strong>Note:</strong> There is a very important detail here: The player who is playing always sees <em>their own</em> pieces as <code>1</code>. In our implementation, we simply multiply the board by <code>-1</code> every time we transition between players. Below, observe that state "toggles" as players take turns placing pieces:</p>
+
+        <figure id="treeWithStates" style="height:600px;width:100%;margin:0;background:#000b2a">
+          <svg style="background:#000b2a; margin: 0 auto; display:block; width:1700px; height:500px; padding-top:25px;"></svg>
+        </figure>
         <hr>
 
         <h2>Alpha Zero</h2>
 
-        <p>At it's core, AlphaZero is built from three pieces:
+        <p>At its core, AlphaZero is built from three core pieces:
           <ol>
           <li>Value Network</li>
           <li>Policy Network</li>
@@ -74,7 +88,7 @@
         <h3>Value Network</h3>
 
         <p>
-          The value network accepts a board state as input and gives us a score as output. If we are going to win with absolute certainty, we want our value network to output 1. If we are going to lose, we want our value network to output -1. If we are going to draw, we want our value network to output 0.
+          The value network accepts a board state as input and gives us a score as output. If we are going to win with absolute certainty, we want our value network to output <code>1</code>. If we are going to lose, we want our value network to output <code>-1</code>. If we are going to draw, we want our value network to output <code>0</code>.
         </p>
 
         <p>For example, the game below is guaranteed to be a tie, so we'd like our network to produce 0 (or something close to it).</p>
@@ -83,21 +97,23 @@
             <img style="max-width:700px;display:block;margin:0 auto" src="value_net.png" />
         </figure>
 
-        <p>There are some subtleties here worth discussing. First off, our network isn't doing any "thinking" to produce it's value. That is, it's not looking ahead, considering all possible moves or anything like that.
-          It's esssentially acting as an image classifier. In fact for 2D games like Go, we would use architectures like ResNet that are good at image classification for our network.
+        <p>There are some subtleties here worth discussing. First off, our network isn't doing any "thinking" to produce a value. That is, it's not looking ahead, considering all possible moves or anything like that.
+          It's esssentially acting as an image classifier. In fact for 2D games like Go, we would borrow computer vision architectures like ResNet and use them as the backbone for our networks.
         </p>
 
         <p>
-          For AlphaZero, we train this network by playing many games, recording the moves both players took along with the winner and training the network to output 1 for all the games we won, and -1 for all the games we lost.
+          For AlphaZero, we train this network by playing many games, recording the moves both players took along with the winner and training the network to output <code>1</code> for all the games we won, and <code>-1</code> for all the games we lost.
 
           The dataset might look like
         </p>
 
-        <p>
-          [ 0  0  0  0] [ 1]
-          [-1  0  0  0] [-1]
-          [ 1  0 -1 -1] [ 1]
+        
+        <pre style="margin-left: calc(50% - 984px / 2);width: 648px;">[ 0  0  0  0] [ 1]
+[-1  0  0  0] [-1]
+[ 1  0 -1 -1] [ 1]</pre>
 
+
+        <p>
           It's our hope that over a long enough time horizon, our value network will become increasingly good at identifying "good" states. This ends up being important
           as it will help guide our Monte Carlo Tree Search later.
         </p>
@@ -185,12 +201,12 @@
        const goose2Path = `M27.4,19L8.2,27.6c0,0-7.3,2.9,2.6,5c6.1,1.3,24,5.9,24,5.9l1,0.3`;
        const goose3Path =  `M63.7,99.6C52.3,99.6,43,90.3,43,78.9s9.3-20.7,20.7-20.7c10.6,0,34.4,0.1,35.8,9`;
 
-      function placeEdges(node) {
+      function placeEdges(containerId, node) {
 
         for (var i = 0; i < node.children.length; i++) {
 
           //Recursively place edges
-          placeEdges(node.children[i]);
+          placeEdges(containerId, node.children[i]);
 
           //Draw edge for this child
           let x1 = node.x + 32
@@ -198,7 +214,7 @@
           let x2 = node.children[i].x + 32
           let y2 = node.children[i].y - 15
 
-          placeLine("#tree svg", x1, y1, x2, y2);
+          placeLine(containerId, x1, y1, x2, y2);
         }
       }
 
@@ -314,16 +330,13 @@
           .attr('stroke', 'rgba(255, 255, 255, 0.5')
       }
 
-      function placeBoard(containerId, node, height, width) {
 
-        if (height === undefined) {
-          height = 15;
-        }
-        if (width === undefined) {
-          width = 63;
-        }
+      function placeBoard(containerId, node, height, width, showStates) {
 
         let container = d3.select(containerId)
+        .append('g')
+
+        let svg = container
           .append('svg')
           .attr('height', height)
           .attr('width', width)
@@ -332,168 +345,190 @@
           .attr('x', node.x)
           .attr('y', node.y)
 
+          if (showStates) {
+
+            console.log(node)
+            let text = "["
+            for(var i = 0; i < node.state.length; i++) {
+              text = text + " " + node.state[i] * node.toPlay;
+            }
+            text = text + "]";
+
+            container.append("text")
+            .attr('font-family', 'Arial,"Helvetica Neue",Helvetica,sans-serif')
+            .attr('font-size', '0.8rem')
+            .attr('x', node.x + 6)
+            .attr('y', node.y - 4)
+            .attr('fill', "white")
+            .text(text)
+          }
+
           let margin = 10
-          placeEmptySlot(container, 0,   0);
-          placeEmptySlot(container, 160 + margin, 0);
-          placeEmptySlot(container, 320 + margin + margin, 0);
-          placeEmptySlot(container, 480 + margin + margin + margin, 0);
+          placeEmptySlot(svg, 0,   0);
+          placeEmptySlot(svg, 160 + margin, 0);
+          placeEmptySlot(svg, 320 + margin + margin, 0);
+          placeEmptySlot(svg, 480 + margin + margin + margin, 0);
 
           let xOffset = 0
           let yOffset = 0
           for(let i = 0; i < node.state.length; i++) {
             if (node.state[i] == 1) {
-              placeKagglePiece(container, xOffset, yOffset)
+              placeKagglePiece(svg, xOffset, yOffset)
             } else if (node.state[i] == -1) {
-              placeGoosePiece(container, xOffset, yOffset)
+              placeGoosePiece(svg, xOffset, yOffset)
             }
 
             xOffset = xOffset + 160 + margin
           }
       }
 
-      function drawTree() {
+      function drawTree(containerId, showStates) {
         let width = 1700
 
-        let root = new Node(860-32, 0, [0,0,0,0], null, 1)
-        placeBoard("#tree svg", root)
+        let boardHeight = 15;
+        let boardWidth = 63;
 
-        let y = 100
+        let y = 25;
+        let root = new Node(860-32, y, [0,0,0,0], null, 1)
+        placeBoard(containerId, root, boardHeight, boardWidth, showStates)
+
+        y = 125
         let r1c1 = new Node(2*1700/12/2, y, [1,  0,  0,  0], root, -1)
         let r1c2 = new Node(9*1700/12/2, y, [0,  1,  0,  0], root, -1)
         let r1c3 = new Node(14*1700/12/2, y, [0,  0,  1,  0], root, -1)
         let r1c4 = new Node(21*1700/12/2, y, [0,  0,  0,  1], root, -1)
-        placeBoard("#tree svg", r1c1)
-        placeBoard("#tree svg", r1c2)
-        placeBoard("#tree svg", r1c3)
-        placeBoard("#tree svg", r1c4)
+        placeBoard(containerId, r1c1, boardHeight, boardWidth, showStates)
+        placeBoard(containerId, r1c2, boardHeight, boardWidth, showStates)
+        placeBoard(containerId, r1c3, boardHeight, boardWidth, showStates)
+        placeBoard(containerId, r1c4, boardHeight, boardWidth, showStates)
 
-        y = 200
+        y = 225
         let r2c1 = new Node(1*1700/12/2/2, y, [1, -1,  0,  0], r1c1, 1)
         let r2c2 = new Node(4*1700/12/2/2, y, [1,  0, -1,  0], r1c1, 1)
         let r2c3 = new Node(7*1700/12/2/2, y, [1,  0,  0, -1], r1c1, 1)
-        placeBoard("#tree svg", r2c1)
-        placeBoard("#tree svg", r2c2)
-        placeBoard("#tree svg", r2c3)
+        placeBoard(containerId, r2c1, boardHeight, boardWidth, showStates)
+        placeBoard(containerId, r2c2, boardHeight, boardWidth, showStates)
+        placeBoard(containerId, r2c3, boardHeight, boardWidth, showStates)
         
         let r2c4 = new Node(14*1700/12/2/2, y, [-1,  1,  0,  0], r1c2, 1)
         let r2c5 = new Node(17*1700/12/2/2, y, [ 0,  1, -1,  0], r1c2, 1)
         let r2c6 = new Node(20*1700/12/2/2, y, [ 0,  1,  0, -1], r1c2, 1)
-        placeBoard("#tree svg", r2c4)
-        placeBoard("#tree svg", r2c5)
-        placeBoard("#tree svg", r2c6)
+        placeBoard(containerId, r2c4, boardHeight, boardWidth, showStates)
+        placeBoard(containerId, r2c5, boardHeight, boardWidth, showStates)
+        placeBoard(containerId, r2c6, boardHeight, boardWidth, showStates)
         
         let r2c7 = new Node(26*1700/12/2/2, y, [-1,  0,  1,  0], r1c3, 1)
         let r2c8 = new Node(29*1700/12/2/2, y, [ 0, -1,  1,  0], r1c3, 1)
         let r2c9 = new Node(32*1700/12/2/2, y, [ 0,  0,  1, -1], r1c3, 1)
-        placeBoard("#tree svg", r2c7)
-        placeBoard("#tree svg", r2c8)
-        placeBoard("#tree svg", r2c9)
+        placeBoard(containerId, r2c7, boardHeight, boardWidth, showStates)
+        placeBoard(containerId, r2c8, boardHeight, boardWidth, showStates)
+        placeBoard(containerId, r2c9, boardHeight, boardWidth, showStates)
         
         let r2c10 = new Node(39*1700/12/2/2, y, [-1,  0,  0,  1], r1c4, 1)
         let r2c11 = new Node(42*1700/12/2/2, y, [ 0, -1,  0,  1], r1c4, 1)
         let r2c12 = new Node(45*1700/12/2/2, y, [ 0,  0, -1,  1], r1c4, 1)
-        placeBoard("#tree svg", r2c10)
-        placeBoard("#tree svg", r2c11)
-        placeBoard("#tree svg", r2c12)
+        placeBoard(containerId, r2c10, boardHeight, boardWidth, showStates)
+        placeBoard(containerId, r2c11, boardHeight, boardWidth, showStates)
+        placeBoard(containerId, r2c12, boardHeight, boardWidth, showStates)
 
-        y = 300
+        y = 325
         let r3c1 = new Node(0*1700/12/2/2, y, [ 1, -1,  1,  0], r2c1, -1)
         let r3c2 = new Node(2*1700/12/2/2, y, [ 1, -1,  0,  1], r2c1, -1)
-        placeBoard("#tree svg", r3c1)
-        placeBoard("#tree svg", r3c2)
+        placeBoard(containerId, r3c1, boardHeight, boardWidth, showStates)
+        placeBoard(containerId, r3c2, boardHeight, boardWidth, showStates)
         
         let r3c3 = new Node(4*1700/12/2/2, y, [ 1,  1, -1,  0], r2c2, -1)
         let r3c4 = new Node(6*1700/12/2/2, y, [ 1,  0, -1,  1], r2c2, -1)
-        placeBoard("#tree svg", r3c3)
-        placeBoard("#tree svg", r3c4)
+        placeBoard(containerId, r3c3, boardHeight, boardWidth, showStates)
+        placeBoard(containerId, r3c4, boardHeight, boardWidth, showStates)
 
         let r3c5 = new Node(8*1700/12/2/2, y,  [ 1,  1,  0, -1], r2c3, -1)
         let r3c6 = new Node(10*1700/12/2/2, y, [ 1,  0,  1, -1], r2c3, -1)
-        placeBoard("#tree svg", r3c5)
-        placeBoard("#tree svg", r3c6)
+        placeBoard(containerId, r3c5, boardHeight, boardWidth, showStates)
+        placeBoard(containerId, r3c6, boardHeight, boardWidth, showStates)
         
         let r3c7 = new Node(12*1700/12/2/2, y, [-1,  1,  1,  0], r2c4, -1)
         let r3c8 = new Node(14*1700/12/2/2, y, [-1,  1,  0,  1], r2c4, -1)
-        placeBoard("#tree svg", r3c7)
-        placeBoard("#tree svg", r3c8)
+        placeBoard(containerId, r3c7, boardHeight, boardWidth, showStates)
+        placeBoard(containerId, r3c8, boardHeight, boardWidth, showStates)
         
         let r3c9  = new Node(16*1700/12/2/2, y, [ 1,  1, -1,  0], r2c5, -1)
         let r3c10 = new Node(18*1700/12/2/2, y, [ 0,  1, -1,  1], r2c5, -1)
-        placeBoard("#tree svg", r3c9)
-        placeBoard("#tree svg", r3c10)
+        placeBoard(containerId, r3c9, boardHeight, boardWidth, showStates)
+        placeBoard(containerId, r3c10, boardHeight, boardWidth, showStates)
         
         let r3c11 = new Node(20*1700/12/2/2, y, [ 1,  1,  0, -1], r2c6, -1)
         let r3c12 = new Node(22*1700/12/2/2, y, [ 0,  1,  1, -1], r2c6, -1)
-        placeBoard("#tree svg", r3c11)
-        placeBoard("#tree svg", r3c12)
+        placeBoard(containerId, r3c11, boardHeight, boardWidth, showStates)
+        placeBoard(containerId, r3c12, boardHeight, boardWidth, showStates)
         
         let r3c13 = new Node(24*1700/12/2/2, y, [-1,  1,  1,  0], r2c7, -1)
         let r3c14 = new Node(26*1700/12/2/2, y, [-1,  0,  1,  1], r2c7, -1)
-        placeBoard("#tree svg", r3c13)
-        placeBoard("#tree svg", r3c14)
+        placeBoard(containerId, r3c13, boardHeight, boardWidth, showStates)
+        placeBoard(containerId, r3c14, boardHeight, boardWidth, showStates)
         
         let r3c15 = new Node(28*1700/12/2/2, y, [ 1, -1,  1,  0], r2c8, -1)
         let r3c16 = new Node(30*1700/12/2/2, y, [ 0, -1,  1,  1], r2c8, -1)
-        placeBoard("#tree svg", r3c15)
-        placeBoard("#tree svg", r3c16)
+        placeBoard(containerId, r3c15, boardHeight, boardWidth, showStates)
+        placeBoard(containerId, r3c16, boardHeight, boardWidth, showStates)
         
         let r3c17 = new Node(32*1700/12/2/2, y, [ 1,  0,  1, -1], r2c9, -1)
         let r3c18 = new Node(34*1700/12/2/2, y, [ 0,  1,  1, -1], r2c9, -1)
-        placeBoard("#tree svg", r3c17)
-        placeBoard("#tree svg", r3c18)
+        placeBoard(containerId, r3c17, boardHeight, boardWidth, showStates)
+        placeBoard(containerId, r3c18, boardHeight, boardWidth, showStates)
         
         let r3c19 = new Node(36*1700/12/2/2, y, [-1,  1,  0,  1], r2c10, -1)
         let r3c20 = new Node(38*1700/12/2/2, y, [-1,  0,  1,  1], r2c10, -1)
-        placeBoard("#tree svg", r3c19)
-        placeBoard("#tree svg", r3c20)
+        placeBoard(containerId, r3c19, boardHeight, boardWidth, showStates)
+        placeBoard(containerId, r3c20, boardHeight, boardWidth, showStates)
         
         let r3c21 = new Node(40*1700/12/2/2, y, [ 1, -1,  0,  1], r2c11, -1)
         let r3c22 = new Node(42*1700/12/2/2, y, [ 0, -1,  1,  1], r2c11, -1)
-        placeBoard("#tree svg", r3c21)
-        placeBoard("#tree svg", r3c22)
+        placeBoard(containerId, r3c21, boardHeight, boardWidth, showStates)
+        placeBoard(containerId, r3c22, boardHeight, boardWidth, showStates)
         
         let r3c23 = new Node(44*1700/12/2/2, y, [ 1,  0, -1,  1], r2c12, -1)
         let r3c24 = new Node(46*1700/12/2/2, y, [ 0,  1, -1,  1], r2c12, -1)
-        placeBoard("#tree svg", r3c23)
-        placeBoard("#tree svg", r3c24)
+        placeBoard(containerId, r3c23, boardHeight, boardWidth, showStates)
+        placeBoard(containerId, r3c24, boardHeight, boardWidth, showStates)
 
-        y = 400
+        y = 425
         let r4c1 = new Node(0*1700/12/2/2, y, [ 1, -1,  1, -1], r3c1, -1)
         let r4c2 = new Node(2*1700/12/2/2, y, [ 1, -1, -1,  1], r3c2, -1)
-        placeBoard("#tree svg", r4c1)
-        placeBoard("#tree svg", r4c2)
+        placeBoard(containerId, r4c1, boardHeight, boardWidth, showStates)
+        placeBoard(containerId, r4c2, boardHeight, boardWidth, showStates)
 
         let r4c3 = new Node(6*1700/12/2/2, y, [ 1, -1, -1,  1], r3c4, 1)
-        placeBoard("#tree svg", r4c3)
+        placeBoard(containerId, r4c3, boardHeight, boardWidth, showStates)
 
         let r4c4 = new Node(10*1700/12/2/2, y, [ 1, -1,  1, -1], r3c6, 1)
-        placeBoard("#tree svg", r4c4)
+        placeBoard(containerId, r4c4, boardHeight, boardWidth, showStates)
 
         let r4c5 = new Node(14*1700/12/2/2, y, [-1,  1, -1,  1], r3c8, 1)
-        placeBoard("#tree svg", r4c5)
+        placeBoard(containerId, r4c5, boardHeight, boardWidth, showStates)
 
         let r4c6 = new Node(18*1700/12/2/2, y, [-1,  1, -1,  1], r3c10, 1)
-        placeBoard("#tree svg", r4c6)
+        placeBoard(containerId, r4c6, boardHeight, boardWidth, showStates)
 
         let r4c7 = new Node(28*1700/12/2/2, y, [1, -1,  1, -1], r3c15, 1)
-        placeBoard("#tree svg", r4c7)
+        placeBoard(containerId, r4c7, boardHeight, boardWidth, showStates)
 
         let r4c8 = new Node(32*1700/12/2/2, y, [ 1, -1,  1, -1], r3c17, 1)
-        placeBoard("#tree svg", r4c8)
+        placeBoard(containerId, r4c8, boardHeight, boardWidth, showStates)
 
         let r4c9 = new Node(36*1700/12/2/2, y, [-1,  1, -1,  1], r3c19, 1)
-        placeBoard("#tree svg", r4c9)
+        placeBoard(containerId, r4c9, boardHeight, boardWidth, showStates)
 
         let r4c10 = new Node(40*1700/12/2/2, y, [ 1, -1, -1,  1], r3c21, 1)
-        placeBoard("#tree svg", r4c10)
+        placeBoard(containerId, r4c10, boardHeight, boardWidth, showStates)
 
         let r4c11 = new Node(44*1700/12/2/2, y, [ 1, -1, -1,  1], r3c23, 1)
         let r4c12 = new Node(46*1700/12/2/2, y, [-1,  1, -1,  1], r3c24, 1)
-        placeBoard("#tree svg", r4c11)
-        placeBoard("#tree svg", r4c12)
+        placeBoard(containerId, r4c11, boardHeight, boardWidth, showStates)
+        placeBoard(containerId, r4c12, boardHeight, boardWidth, showStates)
 
         // Place edges
-        placeEdges(root)
+        placeEdges(containerId, root)
       }
 
       function drawCircle(containerId, x, y) {
@@ -523,48 +558,11 @@
 
       }
 
-      function drawValueNetwork() {
+      let showStates = false;
+      drawTree("#tree svg", showStates);
 
-          // let root = new Node(10, 10, [0,1,0,-1], null, 1)
-          // placeBoard("#value-network svg", root, 45, 189)
-          
-          // // placeLine("#value-network svg", 250, 100, 350, 101) 
-          // // placeLine("#value-network svg", 250, 100, 350, 150)
-          // // placeLine("#value-network svg", 250, 100, 350, 200)
-          // // placeLine("#value-network svg", 250, 100, 350, 250)
-
-          // // placeLine("#value-network svg", 250, 150, 350, 100) 
-          // // placeLine("#value-network svg", 250, 150, 350, 151)
-          // // placeLine("#value-network svg", 250, 150, 350, 200)
-          // // placeLine("#value-network svg", 250, 150, 350, 250)
-          
-          // // placeLine("#value-network svg", 250, 200, 350, 100) 
-          // // placeLine("#value-network svg", 250, 200, 350, 150)
-          // // placeLine("#value-network svg", 250, 200, 350, 201)
-          // // placeLine("#value-network svg", 250, 200, 350, 250)
-          
-          // // placeLine("#value-network svg", 250, 250, 350, 100) 
-          // // placeLine("#value-network svg", 250, 250, 350, 150)
-          // // placeLine("#value-network svg", 250, 250, 350, 200)
-          // // placeLine("#value-network svg", 250, 250, 350, 251)
-
-          // // drawCircle("#value-network svg", 250, 100)
-          // // drawCircle("#value-network svg", 250, 150)
-          // // drawCircle("#value-network svg", 250, 200)
-          // // drawCircle("#value-network svg", 250, 250)
-          
-          // // drawCircle("#value-network svg", 350, 100)
-          // // drawCircle("#value-network svg", 350, 150)
-          // // drawCircle("#value-network svg", 350, 200)
-          // // drawCircle("#value-network svg", 350, 250)
-
-          // placeArrow();
-
-
-      }
-
-      drawValueNetwork();
-      drawTree();
+      showStates = true;
+      drawTree("#treeWithStates svg", showStates)
       
 
 
@@ -574,14 +572,14 @@
       // x = 1700/12/2/2;
       // y = 200
       // for (let i = 0; i < 12; i++) {
-      //   placeEmptyBoard("#tree svg", x, y)
+      //   placeEmptyBoard(containerId, x, y)
       //   x = x + 1700/12;
       // }
       
       // x = 0
       // y = 300
       // for (let i = 0; i < 24; i++) {
-      //   placeEmptyBoard("#tree svg", x, y)
+      //   placeEmptyBoard(containerId, x, y)
       //   x = x + 1700/24;
       // }
 
