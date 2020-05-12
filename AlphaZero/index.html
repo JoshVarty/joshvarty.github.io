@@ -5,6 +5,92 @@
 </head>
 <body>
     <style>
+
+      .variable-info {
+        color:#aaa;
+        display: none;
+      }
+
+      .comment {
+        color: #688e49;
+      }
+      .keyword{
+        color: #5b94cf;
+      }
+
+      .secondary-keyword {
+        color:#dcdcaa;
+      }
+
+      .control-flow {
+        color:#b680ba;
+      } 
+
+      .args {
+        color:#9cdcfe;
+      }
+
+      .active-line {
+        background: #8e8f32;
+        color: #ddd;
+      }
+
+      .controls-container {
+          background: #1e1e1e;
+          width: 216px;
+          height: 35px;
+          position:absolute;
+          bottom:-35px;
+          box-shadow: 0px 3px 3px #111;
+          border-radius: 0px 0px 4px 4px;
+          z-index: 1;
+      }
+
+      .controls-container button {
+          background: transparent;
+          border: none;
+          width: 28px;
+          height: 28px;
+          float: left;
+          background-repeat: no-repeat;
+          background-position: center;
+          padding: 0 20px;
+      }
+
+      .controls-container button:hover {
+          cursor: pointer;
+      }
+
+      .controls-container .play {
+          background-size: 20px;
+          background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNiAxNiI+PGRlZnM+PHN0eWxlPi5pY29uLWNhbnZhcy10cmFuc3BhcmVudCwuaWNvbi12cy1vdXR7ZmlsbDojZjZmNmY2O30uaWNvbi1jYW52YXMtdHJhbnNwYXJlbnR7b3BhY2l0eTowO30uaWNvbi12cy1hY3Rpb24tZ3JlZW57ZmlsbDojMzg4YTM0O308L3N0eWxlPjwvZGVmcz48dGl0bGU+Y29udGludWU8L3RpdGxlPjxnIGlkPSJjYW52YXMiPjxwYXRoIGNsYXNzPSJpY29uLWNhbnZhcy10cmFuc3BhcmVudCIgZD0iTTE2LDBWMTZIMFYwWiIvPjwvZz48ZyBpZD0ib3V0bGluZSIgc3R5bGU9ImRpc3BsYXk6IG5vbmU7Ij48cGF0aCBjbGFzcz0iaWNvbi12cy1vdXQiIGQ9Ik0xNC4zMzQsOCwzLjY2NywxNkgzVjBoLjY2N1oiLz48L2c+PGcgaWQ9Imljb25CZyI+PHBhdGggY2xhc3M9Imljb24tdnMtYWN0aW9uLWdyZWVuIiBkPSJNNCwxLjV2MTNMMTIuNjY3LDgsNCwxLjVaIi8+PC9nPjwvc3ZnPg==');
+          border: 1px solid transparent;
+          -webkit-transition: border 0.1s linear, box-shadow 0.1s linear;
+          -moz-transition: border 0.1s linear, box-shadow 0.1s linear;
+          transition: border 0.1s linear, box-shadow 0.1s linear;
+      }
+
+      .controls-container .back {
+          background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGcgY2xpcC1wYXRoPSJ1cmwoI2NsaXAwKSI+CjxwYXRoIGQ9Ik02IDEzQzYgMTMuMzk1NiA2LjExNzMgMTMuNzgyMiA2LjMzNzA2IDE0LjExMTFDNi41NTY4MiAxNC40NCA2Ljg2OTE4IDE0LjY5NjQgNy4yMzQ2MyAxNC44NDc4QzcuNjAwMDggMTQuOTk5MSA4LjAwMjIyIDE1LjAzODcgOC4zOTAxOCAxNC45NjE2QzguNzc4MTQgMTQuODg0NCA5LjEzNDUxIDE0LjY5MzkgOS40MTQyMSAxNC40MTQyQzkuNjkzOTIgMTQuMTM0NSA5Ljg4NDQgMTMuNzc4MSA5Ljk2MTU3IDEzLjM5MDJDMTAuMDM4NyAxMy4wMDIyIDkuOTk5MTMgMTIuNjAwMSA5Ljg0Nzc2IDEyLjIzNDZDOS42OTYzOCAxMS44NjkyIDkuNDQwMDQgMTEuNTU2OCA5LjExMTE0IDExLjMzNzFDOC43ODIyNCAxMS4xMTczIDguMzk1NTYgMTEgOCAxMUM3LjQ2OTU3IDExIDYuOTYwODYgMTEuMjEwNyA2LjU4NTc5IDExLjU4NThDNi4yMTA3MSAxMS45NjA5IDYgMTIuNDY5NiA2IDEzWiIgZmlsbD0iIzQyNDI0MiIvPgo8cGF0aCBkPSJNMC45OTk5OTggMlY4SDdWNkg0Ljc2M0M1LjI3MzAzIDUuMjMzMjMgNi4wMDY5MyA0LjY0MjI0IDYuODY0ODEgNC4zMDc0MkM3LjcyMjY5IDMuOTcyNjEgOC42NjI5IDMuOTEwMjQgOS41NTc0OSA0LjEyODgxQzEwLjQ1MjEgNC4zNDczNyAxMS4yNTc2IDQuODM2MjYgMTEuODY0NCA1LjUyODkzQzEyLjQ3MTMgNi4yMjE2MSAxMi44NSA3LjA4NDQzIDEyLjk0OSA4SDE0Ljk3NUMxNC44NzMzIDYuNjM1MiAxNC4zNDIyIDUuMzM3NiAxMy40NTc5IDQuMjkzMTJDMTIuNTczNiAzLjI0ODYzIDExLjM4MTMgMi41MTA4NiAxMC4wNTIgMi4xODU0OUM4LjcyMjYyIDEuODYwMTIgNy4zMjQ0IDEuOTYzODUgNi4wNTc2MyAyLjQ4MTgzQzQuNzkwODUgMi45OTk4MSAzLjcyMDUzIDMuOTA1NDUgMyA1LjA2OVYySDAuOTk5OTk4WiIgZmlsbD0iIzAwNTM5QyIvPgo8L2c+CjxkZWZzPgo8Y2xpcFBhdGggaWQ9ImNsaXAwIj4KPHJlY3Qgd2lkdGg9IjE2IiBoZWlnaHQ9IjE2IiBmaWxsPSJ3aGl0ZSIgdHJhbnNmb3JtPSJtYXRyaXgoLTEgMCAwIDEgMTYgMCkiLz4KPC9jbGlwUGF0aD4KPC9kZWZzPgo8L3N2Zz4=');
+          margin-left: 20px;
+      }
+
+      .controls-container .stop {
+          background-size: 20px;
+          background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNiAxNiI+PGRlZnM+PHN0eWxlPi5pY29uLWNhbnZhcy10cmFuc3BhcmVudCwuaWNvbi12cy1vdXR7ZmlsbDojZjZmNmY2O30uaWNvbi1jYW52YXMtdHJhbnNwYXJlbnR7b3BhY2l0eTowO30uaWNvbi12cy1hY3Rpb24tcmVke2ZpbGw6I2ExMjYwZDt9PC9zdHlsZT48L2RlZnM+PHRpdGxlPnN0b3A8L3RpdGxlPjxnIGlkPSJjYW52YXMiPjxwYXRoIGNsYXNzPSJpY29uLWNhbnZhcy10cmFuc3BhcmVudCIgZD0iTTE2LDBWMTZIMFYwWiIvPjwvZz48ZyBpZD0ib3V0bGluZSIgc3R5bGU9ImRpc3BsYXk6IG5vbmU7Ij48cGF0aCBjbGFzcz0iaWNvbi12cy1vdXQiIGQ9Ik0xNCwyVjE0SDJWMloiLz48L2c+PGcgaWQ9Imljb25CZyI+PHBhdGggY2xhc3M9Imljb24tdnMtYWN0aW9uLXJlZCIgZD0iTTEzLDNWMTNIM1YzWiIvPjwvZz48L3N2Zz4=');
+      }
+
+      .controls-container .forward {
+          background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGcgY2xpcC1wYXRoPSJ1cmwoI2NsaXAwKSI+CjxwYXRoIGQ9Ik02IDEzQzYgMTMuMzk1NiA2LjExNzMgMTMuNzgyMiA2LjMzNzA2IDE0LjExMTFDNi41NTY4MiAxNC40NCA2Ljg2OTE4IDE0LjY5NjQgNy4yMzQ2MyAxNC44NDc4QzcuNjAwMDggMTQuOTk5MSA4LjAwMjIyIDE1LjAzODcgOC4zOTAxOCAxNC45NjE2QzguNzc4MTQgMTQuODg0NCA5LjEzNDUxIDE0LjY5MzkgOS40MTQyMSAxNC40MTQyQzkuNjkzOTIgMTQuMTM0NSA5Ljg4NDQgMTMuNzc4MSA5Ljk2MTU3IDEzLjM5MDJDMTAuMDM4NyAxMy4wMDIyIDkuOTk5MTMgMTIuNjAwMSA5Ljg0Nzc2IDEyLjIzNDZDOS42OTYzOCAxMS44NjkyIDkuNDQwMDQgMTEuNTU2OCA5LjExMTE0IDExLjMzNzFDOC43ODIyNCAxMS4xMTczIDguMzk1NTYgMTEgOCAxMUM3LjQ2OTU3IDExIDYuOTYwODYgMTEuMjEwNyA2LjU4NTc5IDExLjU4NThDNi4yMTA3MSAxMS45NjA5IDYgMTIuNDY5NiA2IDEzWiIgZmlsbD0iIzQyNDI0MiIvPgo8cGF0aCBkPSJNMC45OTk5OTggMlY4SDdWNkg0Ljc2M0M1LjI3MzAzIDUuMjMzMjMgNi4wMDY5MyA0LjY0MjI0IDYuODY0ODEgNC4zMDc0MkM3LjcyMjY5IDMuOTcyNjEgOC42NjI5IDMuOTEwMjQgOS41NTc0OSA0LjEyODgxQzEwLjQ1MjEgNC4zNDczNyAxMS4yNTc2IDQuODM2MjYgMTEuODY0NCA1LjUyODkzQzEyLjQ3MTMgNi4yMjE2MSAxMi44NSA3LjA4NDQzIDEyLjk0OSA4SDE0Ljk3NUMxNC44NzMzIDYuNjM1MiAxNC4zNDIyIDUuMzM3NiAxMy40NTc5IDQuMjkzMTJDMTIuNTczNiAzLjI0ODYzIDExLjM4MTMgMi41MTA4NiAxMC4wNTIgMi4xODU0OUM4LjcyMjYyIDEuODYwMTIgNy4zMjQ0IDEuOTYzODUgNi4wNTc2MyAyLjQ4MTgzQzQuNzkwODUgMi45OTk4MSAzLjcyMDUzIDMuOTA1NDUgMyA1LjA2OVYySDAuOTk5OTk4WiIgZmlsbD0iIzAwNTM5QyIvPgo8L2c+CjxkZWZzPgo8Y2xpcFBhdGggaWQ9ImNsaXAwIj4KPHJlY3Qgd2lkdGg9IjE2IiBoZWlnaHQ9IjE2IiBmaWxsPSJ3aGl0ZSIgdHJhbnNmb3JtPSJtYXRyaXgoLTEgMCAwIDEgMTYgMCkiLz4KPC9jbGlwUGF0aD4KPC9kZWZzPgo8L3N2Zz4=');
+          transform: scaleX(-1);
+      }
+
+      .controls-container .play.active {
+          border-color: #DAA520;
+          -webkit-box-shadow: 0 0 5px #DAA520;
+          -moz-box-shadow: 0 0 5px #DAA520;
+          box-shadow: 0 0 5px #DAA520;
+      }
     </style>
 
     <script type="text/front-matter">
@@ -28,7 +114,7 @@
           Go has ~2.08x10<sup>170</sup> legal board positions. Chess has ~10<sup>50</sup> legal board positions. Even Tic-Tac-Toe has 5,478 legal board positions.
           If we're going to have any hope of understanding AlphaZero and MCTS for the first time, we're going to need a simpler game.
 
-          We need a comically simple game that still allows for wins, losses and draws.
+          We need a super simple game that still allows for wins, losses and draws.
         </p>
 
           <p>Ladies and gentlemen, for your consideration: Connect2!</p>
@@ -44,7 +130,7 @@
         </p>
 
         <p>
-          Below is the complete game tree of all possible Connect2 games:
+          Below is the complete game tree of all 53 possible Connect2 states:
         </p>
 
         <figure id="tree" style="height:600px;width:100%;margin:0;background:#000b2a">
@@ -61,7 +147,7 @@
         </p>
 
         <h4>Representing the Game</h4>
-        <p>One drawback of AlphaZero is that we need to be able to perfectly simulate the game. This ends up being relatively straightforward for Connect2 but 
+        <p>One drawback of AlphaZero is that we need to be able to perfectly simulate the game we want to play. This ends up being relatively straightforward for Connect2 but 
           is much more difficult for games like chess that have more complex rules. The full code for Connect2 is available <a href="https://github.com/JoshVarty/AlphaZeroSimple/blob/ecf72a468aba26b8b155ec6fb1b91697a2fbb7a9/game.py">on GitHub</a>. It contains logic that defines 
           what moves are valid, how to transition between states and what reward a player should receive.
         </p>
@@ -77,7 +163,7 @@
 
         <h2>Alpha Zero</h2>
 
-        <p>At its core, AlphaZero is built from three core pieces:
+        <p>AlphaZero is built from three core pieces:
           <ol>
           <li>Value Network</li>
           <li>Policy Network</li>
@@ -101,17 +187,32 @@
           It's esssentially acting as an image classifier. In fact for 2D games like Go, we would borrow computer vision architectures like ResNet and use them as the backbone for our networks.
         </p>
 
+        <h4>Training</h4>
         <p>
-          For AlphaZero, we train this network by playing many games, recording the moves both players took along with the winner and training the network to output <code>1</code> for all the games we won, and <code>-1</code> for all the games we lost.
-
-          The dataset might look like
-        </p>
+          In order to train this network, we need to record the moves taken by each player during a self-play game. For example, a sample game might look like:
 
         
-        <pre style="margin-left: calc(50% - 984px / 2);width: 648px;">[ 0  0  0  0] [ 1]
-[-1  0  0  0] [-1]
-[ 1  0 -1 -1] [ 1]</pre>
+        <pre style="margin-left: calc(50% - 984px / 2);width: 648px;">[ 0  0  0  0]   # Player 1 plays in the first position
+[-1  0  0  0]   # Player 2 plays in the third position
+[ 1  0 -1  0]   # Player 1 plays in the second position
+</pre>
+        <p>
+          After the final move, Player 1 will be declared the winner. We go back through all the states held by Player 1 and mark them with a reward of 
+          <code>1</code>. Similarily, we go through all the states held by Player 2 and mark them with a reward of <code>-1</code>. 
+          Our recorded states would now look something like:
+        </p>
+        
+        <pre style="margin-left: calc(50% - 984px / 2);width: 648px;">([ 0  0  0  0],  1)   # Player 1 plays in the first position
+([-1  0  0  0], -1)   # Player 2 plays in the third position
+([ 1  0 -1  0],  1)   # Player 1 plays in the second position
+</pre>
 
+        <p>
+          We collect this kind of state and reward information across a large number of games. We then use these recordings as a dataset to train our value network. 
+          We ask our network how it would have "valued" a given state, and then train it to be closer to the actual value seen 
+          (always <code>1</code>,<code>0</code> or <code>-1</code>,) when playing games. The hope is that with enough training, our value network will 
+          start to value game states correctly.
+        </p>
 
         <p>
           It's our hope that over a long enough time horizon, our value network will become increasingly good at identifying "good" states. This ends up being important
@@ -146,20 +247,93 @@
 
         <h4>Training</h4>
         <p>
-          One counter-intutive thing about AlphaZero is that we don't train our policy network to be "better". Instead we train it to mimic the output of the Monte Carlo Tree Search.
-          As we play games, the policy network suggests moves to Monte Carlo Tree Search. MCTS uses these suggetsions (or priors) to explore the game tree and returns a (hopefully) better
-          set of probabilities for a given state.
+          One thing I find counter-intuitive about AlphaZero is that we don't directly train our policy network to make "good" moves. 
+          Instead we train it to mimic the output of the Monte Carlo Tree Search. As we play games, the policy network suggests moves to Monte Carlo Tree Search. MCTS uses these suggestions (or priors) 
+          to explore the game tree and returns a  better set of probabilities for a given state. We record the <strong>state</strong> and the 
+          <strong>probabilities produced by the MCTS</strong>. For example, a sample game might look like:
 
-          We record the state and the probabilities produced by the MCTS. At training time we train our policy network to output similar moves using Cross Entropy Loss.
+                  <pre style="margin-left: calc(50% - 984px / 2);width: 648px;">([ 0  0  0  0], [0.1, 0.4, 0.4, 0.1])
+([-1  0  0  0], [0.0, 0.3, 0.3, 0.3])
+([ 1  0 -1  0], [0.0, 0.8, 0.0, 0.2])
+</pre>
+
+        <p>
+          Once again, we collect this information over a large number of games. We use these recordings as a dataset to train our policy network. We ask our policy network 
+          what prior probabilities it would recommend for a given state. We then use Cross Entropy Loss to try and match the policy network's priors to the probabilities recommended by the MCTS. 
         </p>
+
 
         <h3>Monte Carlo Tree Search</h3>
 
-        <p>Despite the outside world's focus on the neural networks involved in AlphaZero, the true magic of AlphaZero comes from Monte Carlo Tree Search. It's here 
-          that AlphaZero simulates moves and looks ahead to explore a range of promising moves.
+        <p>Despite the world's focus on the neural networks involved in AlphaZero, the true magic of AlphaZero actually comes from 
+          Monte Carlo Tree Search. It's here that AlphaZero simulates moves and looks ahead to explore a range of promising moves.
         </p>
 
+        <p>The search tree we're using is the same as the ones shown above. Each node represents a reachable board state and the edges represent actions that 
+          a player can take in that state. Each node stores a few pieces of information on it:
+        </p>
 
+        <dt-code block language="python">
+class Node:
+  def __init__(self, prior, to_play):
+      self.visit_count = 0    # Number of times this state was visited during MCTS. "Good" are visited more then "bad" states.
+      self.to_play = to_play  # The player whose turn it is. (1 or -1)
+      self.prior = prior      # The prior probability of selecting this state from its parent
+      self.value_sum = 0      # The total value of this state from all visits
+      self.children = {}      # A lookup of legal child positions
+      self.state = None       # The board state as this node
+        </dt-code>
+        <p>
+          Monte Carlo Tree Search is comprised of running three stages multiple times. These stages are:
+          <ol>
+            <li>Select</li>
+            <li>Expand</li>
+            <li>Backup</li>
+          </ol>
+        </p>
+
+        <p>Before we try to understand each stage, let's watch Monte Carlo Tree search to try to get a feel for how it all works.</p>
+
+
+<figure style="background: #1e1e1e;margin:0;width:100%;color:#dfdfdf">
+<div style="max-width: 1000px;margin:0 auto; font-size:0.85rem;line-height: 1.3rem;">
+<pre style="margin:0;padding:10px 0;"><span id="line0"><span class="keyword">def</span> <span class="secondary-keyword">run</span>(<span class="args">self</span>, <span class="args">state</span>, <span class="args">to_play</span>, <span class="args">num_simulations</span>):</span>
+    <span id="line1">root = Node(0, to_play)</span>                                                       <span id="line1-info" class="variable-info"></span>
+    <span id="line2"class="comment"># EXPAND root</span>
+    <span id="line3">root.expand(<span class="keyword">self</span>.model, <span class="keyword">self</span>.game, state, to_play)</span>
+
+    <span id="line4"><span class="control-flow">for</span> _ <span class="keyword">in</span> <span class="secondary-keyword">range</span>(num_simulations):</span>
+        <span id="line5">node = root</span>                                                               <span id="line5-info" class="variable-info"></span>
+        <span id="line6">search_path = [node]</span>                                                      <span id="line6-info" class="variable-info"></span>
+        <span id="line7" class="comment"># SELECT</span>
+        <span id="line8"><span class="control-flow">while</span> node.expanded():</span>
+            <span id="line9">action, node = node.select_child()</span>                                    <span id="line9-info" class="variable-info"></span>
+            <span id="line10">search_path.append(node)</span>
+
+        <span id="line11">parent = search_path[-2]</span>                                                  <span id="line11-info" class="variable-info"></p>span>
+        <span id="line12">state = parent.state</span>                                                      <span id="line12-info" class="variable-info"></span>
+        <span id="line13">next_state, _ = <span class="keyword">self</span>.game.get_next_state(state, <span class="args">to_play</span>=1, <span class="args">action</span>=action)</span>
+        <span id="line14">next_state = <span class="keyword">self</span>.game.get_canonical_board(next_state, <span class="args">player</span>=-1)</span>
+        <span id="line15">value = <span class="keyword">self</span>.game.get_reward_for_player(next_state, <span class="args">player</span>=1)</span></span>
+        <span id="line16"><span class="control-flow">if</span> value is None:</span>
+            <span id="line17" class="comment"># EXPAND</span>
+            <span id="line18">value = node.expand(<span class="keyword">self</span>.model, <span class="keyword">self</span>.game, next_state, parent.to_play * -1)</span>
+
+        <span id="line19"><span class="keyword">self</span>.backup(search_path, value, parent.to_play * -1)</span>
+
+    <span id="line20"><span class="keyword">return</span> root</span></pre>
+    <div class="controls-container">
+      <button class="back" onclick="goBack('mcts')" title="Back"></button>
+      <button class="play" onclick="play('mcts')" title="Play"></button>
+      <button class="stop" onclick="pause('mcts')" title="Stop"></button>
+      <button class="forward" onclick="clearAndGoForward('mcts')" title="Next"></button>
+  </div>
+  </div>
+</figure>
+
+        <figure id="mcts-demo" style="height:600px;width:100%;margin:0;background:#000b2a">
+          <svg style="background:#000b2a; margin: 0 auto; display:block; width:1700px; height:500px; padding-top:25px;"></svg>
+        </figure>
       </dt-article>
 
       
@@ -178,8 +352,151 @@
 
     <script src="https://distill.pub/template.v1.js"></script>
     <script src="https://d3js.org/d3.v5.min.js"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
     <script>
+
+      let state = -1;
+      let MAX_STATE_NUMBER = 44;
+      let boardHeight = 15;
+      let boardWidth = 63;
+
+      function goState0(containerId) {
+        let showStates = true;
+
+        let y = 25;
+        let root = new Node(860-32, y, null, null, 1)
+        placeBoard(containerId, root, boardHeight, boardWidth, showStates)
+
+        let element = document.getElementById('line1-info');
+        element.style.display = "inline"
+        element.innerText = "(State: None)"
+
+      }
+
+      function goState1(containerId) {
+        let y = 25;
+        let root = new Node(860-32, y, [0,0,0,0], null, 1)
+        placeBoard(containerId, root, boardHeight, boardWidth, showStates)
+
+        let element = document.getElementById('line1-info');
+        element.style.display = "inline"
+        element.innerText = "(State: [0,0,0,0])"
+        
+        y = 125
+        let r1c1 = new Node(2*1700/12/2, y, [1,  0,  0,  0], root, -1)
+        let r1c2 = new Node(9*1700/12/2, y, [0,  1,  0,  0], root, -1)
+        let r1c3 = new Node(14*1700/12/2, y, [0,  0,  1,  0], root, -1)
+        let r1c4 = new Node(21*1700/12/2, y, [0,  0,  0,  1], root, -1)
+        placeEdges(containerId, root);
+      }
+
+      function goState2(containerId) {
+
+        goState1(containerId);
+        
+        let element = document.getElementById('line5-info');
+        element.style.display = "inline"
+        element.innerText = "(State: [0,0,0,0])"
+      }
+      
+      function goState3(containerId) {
+
+        goState2(containerId);
+        
+        let element = document.getElementById('line6-info');
+        element.style.display = "inline"
+        element.innerText = "[ (State: [0,0,0,0]) ]"
+      }
+
+      function goState4(containerId) {
+        goState3(containerId);
+
+        let element = document.getElementById('line9-info');
+        element.style.display = "inline"
+        element.innerText = "0, (State: None)"
+      }
+
+      function goState5(containerId) {
+        goState4(containerId);
+        
+        let element = document.getElementById('line6-info');
+        element.style.display = "inline"
+        element.innerText = "[ (State: [0,0,0,0]), (State: None) ]"
+      }
+
+      function goToState(stateNumber) {
+
+        let containerId = '#mcts-demo svg'
+
+         var container = d3.select(containerId)
+            container.selectAll("*").remove()
+
+        let activeLines = document.getElementsByClassName("active-line");
+        for (var i = 0; i < activeLines.length; i++) {
+          let currentActiveLine = activeLines[i];
+          currentActiveLine.classList.remove('active-line')
+        }
+
+        let variableInfo = document.getElementsByClassName("variable-info")
+        for (var i = 0; i < variableInfo.length; i++) {
+          let currentInfo = variableInfo[i];
+          currentInfo.style.display = "None"
+        }
+        
+        if (state == 0) {
+            var activeLine = document.getElementById("line1")
+            activeLine.setAttribute('class', 'active-line')
+            goState0(containerId)
+        }
+        else if(state == 1) {
+            var activeLine = document.getElementById("line3")
+            activeLine.setAttribute('class', 'active-line')
+            goState1(containerId)
+        }
+        else if(state == 2) {
+            var activeLine = document.getElementById("line4")
+            activeLine.setAttribute('class', 'active-line')
+            goState1(containerId)
+        }
+        else if(state == 3) {
+            var activeLine = document.getElementById("line5")
+            activeLine.setAttribute('class', 'active-line')
+            goState2(containerId)
+        }
+        else if(state == 4) {
+            var activeLine = document.getElementById("line6")
+            activeLine.setAttribute('class', 'active-line')
+            goState3(containerId)
+        }
+        else if(state == 5) {
+            var activeLine = document.getElementById("line8")
+            activeLine.setAttribute('class', 'active-line')
+            goState3(containerId)
+        }
+        else if(state == 6) {
+            var activeLine = document.getElementById("line9")
+            activeLine.setAttribute('class', 'active-line')
+            goState4(containerId)
+        }
+        else if(state == 7) {
+            var activeLine = document.getElementById("line10")
+            activeLine.setAttribute('class', 'active-line')
+            goState5(containerId)
+        }
+      }
+
+      function goBack(figureName) {
+        state = Math.max(state - 1, 0);
+        goToState(state);
+      }
+
+      function clearAndGoForward(figureName) {
+        state = (state + 1) % MAX_STATE_NUMBER;
+        goToState(state);
+      }
+
 
       class Node {
         constructor(x, y, state, parent, toPlay) {
@@ -336,6 +653,8 @@
         let container = d3.select(containerId)
         .append('g')
 
+        let margin = 10
+
         let svg = container
           .append('svg')
           .attr('height', height)
@@ -347,39 +666,50 @@
 
           if (showStates) {
 
-            console.log(node)
-            let text = "["
-            for(var i = 0; i < node.state.length; i++) {
-              text = text + " " + node.state[i] * node.toPlay;
+            let text = ""
+            let x = node.x + 6
+            let y = node.y - 4
+
+            if (node.state === null) {
+              x = node.x + 16
+              text = "None"
             }
-            text = text + "]";
+            else {
+              text = "["
+              for(var i = 0; i < node.state.length; i++) {
+                text = text + " " + node.state[i] * node.toPlay;
+              }
+              text = text + "]";
+
+              let xOffset = 0
+              let yOffset = 0
+              for(let i = 0; i < node.state.length; i++) {
+                if (node.state[i] == 1) {
+                  placeKagglePiece(svg, xOffset, yOffset)
+                } else if (node.state[i] == -1) {
+                  placeGoosePiece(svg, xOffset, yOffset)
+                }
+
+                xOffset = xOffset + 160 + margin
+              }
+
+            }
 
             container.append("text")
             .attr('font-family', 'Arial,"Helvetica Neue",Helvetica,sans-serif')
             .attr('font-size', '0.8rem')
-            .attr('x', node.x + 6)
-            .attr('y', node.y - 4)
+            .attr('x', x)
+            .attr('y', y)
             .attr('fill', "white")
             .text(text)
           }
 
-          let margin = 10
           placeEmptySlot(svg, 0,   0);
           placeEmptySlot(svg, 160 + margin, 0);
           placeEmptySlot(svg, 320 + margin + margin, 0);
           placeEmptySlot(svg, 480 + margin + margin + margin, 0);
 
-          let xOffset = 0
-          let yOffset = 0
-          for(let i = 0; i < node.state.length; i++) {
-            if (node.state[i] == 1) {
-              placeKagglePiece(svg, xOffset, yOffset)
-            } else if (node.state[i] == -1) {
-              placeGoosePiece(svg, xOffset, yOffset)
-            }
 
-            xOffset = xOffset + 160 + margin
-          }
       }
 
       function drawTree(containerId, showStates) {
@@ -564,9 +894,6 @@
       showStates = true;
       drawTree("#treeWithStates svg", showStates)
       
-
-
-
 
 
       // x = 1700/12/2/2;
