@@ -1634,17 +1634,6 @@ class Node:
               }
               text = text + "]";
 
-              let xOffset = 0
-              let yOffset = 0
-              for(let i = 0; i < node.state.length; i++) {
-                if (node.state[i] == 1) {
-                  placeKagglePiece(svg, xOffset, yOffset)
-                } else if (node.state[i] == -1) {
-                  placeGoosePiece(svg, xOffset, yOffset)
-                }
-
-                xOffset = xOffset + 160 + margin
-              }
 
             }
 
@@ -1656,7 +1645,21 @@ class Node:
             .attr('fill', "white")
             .text(text)
           }
+
           if (node.state !== null){
+
+            let xOffset = 0
+            let yOffset = 0
+            for(let i = 0; i < node.state.length; i++) {
+              if (node.state[i] == 1) {
+                placeKagglePiece(svg, xOffset, yOffset)
+              } else if (node.state[i] == -1) {
+                placeGoosePiece(svg, xOffset, yOffset)
+              }
+
+              xOffset = xOffset + 160 + margin
+            }
+
             placeEmptySlot(svg, 0,   0);
             placeEmptySlot(svg, 160 + margin, 0);
             placeEmptySlot(svg, 320 + margin + margin, 0);
