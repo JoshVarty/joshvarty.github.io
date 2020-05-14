@@ -310,14 +310,14 @@ class Node:
             <span id="line9">action, node = node.select_child()</span>                                    <span id="line9-info" class="variable-info"></span>
             <span id="line10">search_path.append(node)</span>
 
-        <span id="line11">parent = search_path[-2]</span>                                                  <span id="line11-info" class="variable-info"></p>span>
+        <span id="line11">parent = search_path[-2]</span>                                                  <span id="line11-info" class="variable-info"></span>
         <span id="line12">state = parent.state</span>                                                      <span id="line12-info" class="variable-info"></span>
-        <span id="line13">next_state, _ = <span class="keyword">self</span>.game.get_next_state(state, <span class="args">to_play</span>=1, <span class="args">action</span>=action)</span>
-        <span id="line14">next_state = <span class="keyword">self</span>.game.get_canonical_board(next_state, <span class="args">player</span>=-1)</span>
-        <span id="line15">value = <span class="keyword">self</span>.game.get_reward_for_player(next_state, <span class="args">player</span>=1)</span></span>
+        <span id="line13">next_state, _ = <span class="keyword">self</span>.game.get_next_state(state, <span class="args">to_play</span>=1, <span class="args">action</span>=action)</span> <span id="line13-info" class="variable-info"></span>
+        <span id="line14">next_state = <span class="keyword">self</span>.game.get_canonical_board(next_state, <span class="args">player</span>=-1)</span>         <span id="line14-info" class="variable-info"></span>
+        <span id="line15">value = <span class="keyword">self</span>.game.get_reward_for_player(next_state, <span class="args">player</span>=1)</span></span>             <span id="line15-info" class="variable-info"></span>
         <span id="line16"><span class="control-flow">if</span> value is None:</span>
             <span id="line17" class="comment"># EXPAND</span>
-            <span id="line18">value = node.expand(<span class="keyword">self</span>.model, <span class="keyword">self</span>.game, next_state, parent.to_play * -1)</span>
+            <span id="line18">value = node.expand(<span class="keyword">self</span>.model, <span class="keyword">self</span>.game, next_state, parent.to_play * -1)</span>  <span id="line18-info" class="variable-info"></span>
 
         <span id="line19"><span class="keyword">self</span>.backup(search_path, value, parent.to_play * -1)</span>
 
@@ -356,40 +356,51 @@ class Node:
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
     <script>
+      class Node {
+        constructor(x, y, state, parent, toPlay) {
+          this.x = x;
+          this.y = y;
+          this.state = state;
+          this.parent = parent
+          this.children = []
+          this.toPlay = toPlay
+
+          if (this.parent != null) {
+            this.parent.children.push(this);
+          }
+        }
+      }
+
 
       let state = -1;
-      let MAX_STATE_NUMBER = 44;
+      let MAX_STATE_NUMBER = 81;
       let boardHeight = 15;
       let boardWidth = 63;
+      let interactiveRoot = new Node(860-32, 25, null, null, 1)
 
       function goState0(containerId) {
         let showStates = true;
 
-        let y = 25;
-        let root = new Node(860-32, y, null, null, 1)
-        placeBoard(containerId, root, boardHeight, boardWidth, showStates)
-
+        interactiveRoot = new Node(860-32, 25, null, null, 1)
         let element = document.getElementById('line1-info');
         element.style.display = "inline"
         element.innerText = "(State: None)"
-
       }
 
       function goState1(containerId) {
         let y = 25;
-        let root = new Node(860-32, y, [0,0,0,0], null, 1)
-        placeBoard(containerId, root, boardHeight, boardWidth, showStates)
+        let showStates = true;
+
+        interactiveRoot = new Node(860-32, 25, [0,0,0,0], null, 1)
 
         let element = document.getElementById('line1-info');
         element.style.display = "inline"
         element.innerText = "(State: [0,0,0,0])"
         
-        y = 125
-        let r1c1 = new Node(2*1700/12/2, y, [1,  0,  0,  0], root, -1)
-        let r1c2 = new Node(9*1700/12/2, y, [0,  1,  0,  0], root, -1)
-        let r1c3 = new Node(14*1700/12/2, y, [0,  0,  1,  0], root, -1)
-        let r1c4 = new Node(21*1700/12/2, y, [0,  0,  0,  1], root, -1)
-        placeEdges(containerId, root);
+        let r1c1 = new Node(2*1700/12/2, 125, null, interactiveRoot, -1)
+        let r1c2 = new Node(9*1700/12/2, 125, null, interactiveRoot, -1)
+        let r1c3 = new Node(14*1700/12/2, 125, null, interactiveRoot, -1)
+        let r1c4 = new Node(21*1700/12/2, 125, null, interactiveRoot, -1)
       }
 
       function goState2(containerId) {
@@ -426,6 +437,578 @@ class Node:
         element.innerText = "[ (State: [0,0,0,0]), (State: None) ]"
       }
 
+      function goState6(containerId) {
+        goState5(containerId);
+        
+        let element = document.getElementById('line11-info');
+        element.style.display = "inline"
+        element.innerText = "(State: [0,0,0,0])"
+      }
+
+      function goState7(containerId) {
+        goState6(containerId);
+        
+        let element = document.getElementById('line12-info');
+        element.style.display = "inline"
+        element.innerText = "[0,0,0,0]"
+      }
+
+      function goState8(containerId) {
+        goState7(containerId);
+        
+        let element = document.getElementById('line13-info');
+        element.style.display = "inline"
+        element.innerText = "[1,0,0,0]"
+      }
+
+      function goState9(containerId) {
+        goState8(containerId);
+        
+        let element = document.getElementById('line13-info');
+        element.style.display = "inline"
+        element.innerText = "[-1,0,0,0]"
+        element = document.getElementById('line14-info');
+        element.style.display = "inline"
+        element.innerText = "[-1,0,0,0]"
+      }
+      
+      function goState10(containerId) {
+        goState9(containerId);
+        
+        let element = document.getElementById('line15-info');
+        element.style.display = "inline"
+        element.innerText = "None"
+      }
+
+      function goState11(containerId) {
+        goState10(containerId);
+
+        let element = document.getElementById('line9-info');
+        element.style.display = "inline"
+        element.innerText = "0, (State: [-1,0,0,0])"
+
+        element = document.getElementById('line6-info');
+        element.style.display = "inline"
+        element.innerText = "[ (State: [0,0,0,0]), (State: [-1,0,0,0]) ]"
+        
+        element = document.getElementById('line18-info');
+        element.style.display = "inline"
+        element.innerText = "0.5"
+
+        let r1c1 = interactiveRoot.children[0]
+        r1c1.state = [1, 0, 0, 0]
+        y = 225
+        let r2c1 = new Node(1*1700/12/2/2, y, null, r1c1, 1)
+        let r2c2 = new Node(4*1700/12/2/2, y, null, r1c1, 1)
+        let r2c3 = new Node(7*1700/12/2/2, y, null, r1c1, 1)
+        
+      }
+
+      function goState12(containerId) { 
+        goState11(containerId);
+      }
+
+      function goState13(containerId) {
+        goState12(containerId);
+
+        document.getElementById('line5-info').style.display = "none"
+        document.getElementById('line6-info').style.display = "none"
+        document.getElementById('line9-info').style.display = "none"
+        document.getElementById('line11-info').style.display = "none"
+        document.getElementById('line12-info').style.display = "none"
+        document.getElementById('line13-info').style.display = "none"
+        document.getElementById('line14-info').style.display = "none"
+        document.getElementById('line15-info').style.display = "none"
+        document.getElementById('line18-info').style.display = "none"
+      }
+
+      function goState14(containerId) {
+        goState13(containerId);
+        let element = document.getElementById('line5-info');
+        element.style.display = "inline"
+        element.innerText = "(State: [0,0,0,0])"
+      }
+
+      function goState15(containerId) {
+        goState14(containerId);
+                
+        let element = document.getElementById('line6-info');
+        element.style.display = "inline"
+        element.innerText = "[ (State: [0,0,0,0]) ]"
+      }
+      
+      function goState16(containerId) {
+        goState15(containerId);
+
+        let element = document.getElementById('line9-info');
+        element.style.display = "inline"
+        element.innerText = "1, (State: None)"
+      }
+
+      function goState17(containerId) {
+        goState16(containerId);
+
+        let element = document.getElementById('line6-info');
+        element.style.display = "inline"
+        element.innerText = "[ (State: [0,0,0,0]), (State: None) ]"
+      }
+
+      function goState18(containerId) {
+        goState17(containerId);
+        let element = document.getElementById('line11-info');
+        element.style.display = "inline"
+        element.innerText = "(State: [0,0,0,0])"
+      }
+
+      function goState19(containerId) {
+        goState18(containerId);
+        
+        let element = document.getElementById('line12-info');
+        element.style.display = "inline"
+        element.innerText = "[0,0,0,0]"
+      }
+
+      function goState20(containerId) {
+        goState19(containerId);
+        
+        let element = document.getElementById('line13-info');
+        element.style.display = "inline"
+        element.innerText = "[0,1,0,0]"
+      }
+      
+      function goState21(containerId) {
+        goState20(containerId);
+        
+        let element = document.getElementById('line13-info');
+        element.style.display = "inline"
+        element.innerText = "[0,-1,0,0]"
+        
+        element = document.getElementById('line14-info');
+        element.style.display = "inline"
+        element.innerText = "[0,-1,0,0]"
+      }
+
+      function goState22(containerId) {
+        goState21(containerId);
+
+        let element = document.getElementById('line15-info');
+        element.style.display = "inline"
+        element.innerText = "None"
+      }
+
+      function goState23(containerId) {
+        goState22(containerId);
+
+        
+        let element = document.getElementById('line9-info');
+        element.style.display = "inline"
+        element.innerText = "0, (State: [0,-1,0,0])"
+
+        element = document.getElementById('line6-info');
+        element.style.display = "inline"
+        element.innerText = "[ (State: [0,0,0,0]), (State: [0,-1,0,0]) ]"
+        
+        element = document.getElementById('line18-info');
+        element.style.display = "inline"
+        element.innerText = "0.5"
+
+        let r1c2 = interactiveRoot.children[1]
+        r1c2.state = [0, 1, 0, 0]
+        y = 225
+        let r2c4 = new Node(14*1700/12/2/2, y, null, r1c2, 1)
+        let r2c5 = new Node(17*1700/12/2/2, y, null, r1c2, 1)
+        let r2c6 = new Node(20*1700/12/2/2, y, null, r1c2, 1)
+      }
+
+      function goState24(containerId) {
+        goState23(containerId);
+      }
+      
+      function goState25(containerId) {
+        goState24(containerId);
+        
+        document.getElementById('line5-info').style.display = "none"
+        document.getElementById('line6-info').style.display = "none"
+        document.getElementById('line9-info').style.display = "none"
+        document.getElementById('line11-info').style.display = "none"
+        document.getElementById('line12-info').style.display = "none"
+        document.getElementById('line13-info').style.display = "none"
+        document.getElementById('line14-info').style.display = "none"
+        document.getElementById('line15-info').style.display = "none"
+        document.getElementById('line18-info').style.display = "none"
+      }
+
+      function goState26(containerId) {
+        goState25(containerId);
+        let element = document.getElementById('line5-info');
+        element.style.display = "inline"
+        element.innerText = "(State: [0,0,0,0])"
+      }
+
+      function goState27(containerId) {
+        goState26(containerId);
+                
+        let element = document.getElementById('line6-info');
+        element.style.display = "inline"
+        element.innerText = "[ (State: [0,0,0,0]) ]"
+      }
+      
+      function goState28(containerId) {
+        goState27(containerId);
+
+        let element = document.getElementById('line9-info');
+        element.style.display = "inline"
+        element.innerText = "2, (State: None)"
+      }
+
+      function goState29(containerId) {
+        goState28(containerId); 
+        
+        let element = document.getElementById('line6-info');
+        element.style.display = "inline"
+        element.innerText = "[ (State: [0,0,0,0]), (State: None) ]"
+      }
+
+        function goState30(containerId) {
+        goState29(containerId);
+        let element = document.getElementById('line11-info');
+        element.style.display = "inline"
+        element.innerText = "(State: [0,0,0,0])"
+      }
+
+      function goState31(containerId) {
+        goState30(containerId);
+        
+        let element = document.getElementById('line12-info');
+        element.style.display = "inline"
+        element.innerText = "[0,0,0,0]"
+      }
+
+      function goState32(containerId) {
+        goState31(containerId);
+        
+        let element = document.getElementById('line13-info');
+        element.style.display = "inline"
+        element.innerText = "[0,0,1,0]"
+      }
+      
+      function goState33(containerId) {
+        goState32(containerId);
+        
+        let element = document.getElementById('line13-info');
+        element.style.display = "inline"
+        element.innerText = "[0,0,-1,0]"
+        
+        element = document.getElementById('line14-info');
+        element.style.display = "inline"
+        element.innerText = "[0,0,-1,0]"
+      }
+     
+      function goState34(containerId) {
+        goState33(containerId);
+
+        let element = document.getElementById('line15-info');
+        element.style.display = "inline"
+        element.innerText = "None"
+      }
+
+      function goState35(containerId) {
+        goState34(containerId);
+
+        let element = document.getElementById('line9-info');
+        element.style.display = "inline"
+        element.innerText = "0, (State: [0,0,-1,0])"
+
+        element = document.getElementById('line6-info');
+        element.style.display = "inline"
+        element.innerText = "[ (State: [0,0,0,0]), (State: [0,0,-1,0]) ]"
+        
+        element = document.getElementById('line18-info');
+        element.style.display = "inline"
+        element.innerText = "0.5"
+
+        let r1c3 = interactiveRoot.children[2]
+        r1c3.state = [0, 0, 1, 0]
+        let y = 225
+        let r2c7 = new Node(26*1700/12/2/2, y, null, r1c3, 1)
+        let r2c8 = new Node(29*1700/12/2/2, y, null, r1c3, 1)
+        let r2c9 = new Node(32*1700/12/2/2, y, null, r1c3, 1)
+      }
+
+      function goState36(containerId) {
+        goState35(containerId);
+      }
+
+      function goState37(containerId) {
+        goState36(containerId);
+
+        
+        document.getElementById('line5-info').style.display = "none"
+        document.getElementById('line6-info').style.display = "none"
+        document.getElementById('line9-info').style.display = "none"
+        document.getElementById('line11-info').style.display = "none"
+        document.getElementById('line12-info').style.display = "none"
+        document.getElementById('line13-info').style.display = "none"
+        document.getElementById('line14-info').style.display = "none"
+        document.getElementById('line15-info').style.display = "none"
+        document.getElementById('line18-info').style.display = "none"
+      }
+
+      function goState38(containerId) {
+        goState37(containerId);
+        let element = document.getElementById('line5-info');
+        element.style.display = "inline"
+        element.innerText = "(State: [0,0,0,0])"
+      }
+
+      function goState39(containerId) {
+        goState38(containerId);
+                
+        let element = document.getElementById('line6-info');
+        element.style.display = "inline"
+        element.innerText = "[ (State: [0,0,0,0]) ]"
+      }
+      
+      function goState40(containerId) {
+        goState39(containerId);
+
+        let element = document.getElementById('line9-info');
+        element.style.display = "inline"
+        element.innerText = "3, (State: None)"
+      }
+      
+      function goState41(containerId) {
+        goState40(containerId);
+
+        let element = document.getElementById('line6-info');
+        element.style.display = "inline"
+        element.innerText = "[ (State: [0,0,0,0]), (State: None) ]"
+      }
+      
+      function goState42(containerId) {
+        goState41(containerId);
+
+        let element = document.getElementById('line11-info');
+        element.style.display = "inline"
+        element.innerText = "(State: [0,0,0,0])"
+      }
+
+      function goState43(containerId) {
+        goState42(containerId);
+
+        let element = document.getElementById('line12-info');
+        element.style.display = "inline"
+        element.innerText = "[0,0,0,0]"
+      }
+
+      function goState44(containerId) {
+        goState43(containerId)
+
+        let element = document.getElementById('line13-info');
+        element.style.display = "inline"
+        element.innerText = "[0,0,0,1]"
+      }
+      
+      function goState45(containerId) {
+        goState44(containerId);
+        
+        let element = document.getElementById('line13-info');
+        element.style.display = "inline"
+        element.innerText = "[0,0,0,-1]"
+        
+        element = document.getElementById('line14-info');
+        element.style.display = "inline"
+        element.innerText = "[0,0,0,-1]"
+      }
+
+      function goState46(containerId) {
+        goState45(containerId);
+        
+        let element = document.getElementById('line15-info');
+        element.style.display = "inline"
+        element.innerText = "None"
+      }
+
+      function goState47(containerId) {
+        goState46(containerId);
+
+        let element = document.getElementById('line9-info');
+        element.style.display = "inline"
+        element.innerText = "0, (State: [0,0,0,-1])"
+
+        element = document.getElementById('line6-info');
+        element.style.display = "inline"
+        element.innerText = "[ (State: [0,0,0,0]), (State: [0,0,0,-1]) ]"
+        
+        element = document.getElementById('line18-info');
+        element.style.display = "inline"
+        element.innerText = "0.5"
+
+        let r1c4 = interactiveRoot.children[3]
+        r1c4.state = [0, 0, 0, 1]
+        let y = 225
+        let r2c10 = new Node(39*1700/12/2/2, y, null, r1c4, 1)
+        let r2c11 = new Node(42*1700/12/2/2, y, null, r1c4, 1)
+        let r2c12 = new Node(45*1700/12/2/2, y, null, r1c4, 1)
+      }
+
+      function goState48(containerId) {
+        goState47(containerId);
+
+      }
+
+      function goState49(containerId) {
+        goState48(containerId);
+           
+        document.getElementById('line5-info').style.display = "none"
+        document.getElementById('line6-info').style.display = "none"
+        document.getElementById('line9-info').style.display = "none"
+        document.getElementById('line11-info').style.display = "none"
+        document.getElementById('line12-info').style.display = "none"
+        document.getElementById('line13-info').style.display = "none"
+        document.getElementById('line14-info').style.display = "none"
+        document.getElementById('line15-info').style.display = "none"
+        document.getElementById('line18-info').style.display = "none"
+      }
+
+      function goState50(containerId) {
+        goState49(containerId);
+        let element = document.getElementById('line5-info');
+        element.style.display = "inline"
+        element.innerText = "(State: [0,0,0,0])"
+      }
+
+      function goState51(containerId) {
+        goState50(containerId);
+                
+        let element = document.getElementById('line6-info');
+        element.style.display = "inline"
+        element.innerText = "[ (State: [0,0,0,0]) ]"
+      }
+      
+      function goState52(containerId) {
+        goState51(containerId);
+
+        let element = document.getElementById('line9-info');
+        element.style.display = "inline"
+        element.innerText = "0, (State: [-1,0,0,0])"
+      }
+
+      function goState53(containerId) {
+        goState52(containerId);
+
+        let element = document.getElementById('line6-info');
+        element.style.display = "inline"
+        element.innerText = "[ (State: [0,0,0,0]), (State: [-1,0,0,0]) ]"
+      }
+
+      function goState54(containerId) {
+        goState53(containerId);
+
+        let element = document.getElementById('line9-info');
+        element.style.display = "inline"
+        element.innerText = "1, (State: None)"
+      }
+
+      function goState55(containerId) {
+        goState54(containerId);
+
+        let element = document.getElementById('line6-info');
+        element.style.display = "inline"
+        element.innerText = "[ (State: [0,0,0,0]), (State: [-1,0,0,0]), (State: None) ]";
+      }
+
+      function goState56(containerId) {
+        goState55(containerId);
+
+        let element = document.getElementById('line11-info');
+        element.style.display = "inline"
+        element.innerText = "(State: [-1,0,0,0])"
+      }
+
+      function goState57(containerId) {
+        goState56(containerId);
+        
+        let element = document.getElementById('line12-info');
+        element.style.display = "inline"
+        element.innerText = "[-1,0,0,0]"
+      }
+
+      function goState58(containerId) {
+        goState57(containerId)
+
+        let element = document.getElementById('line13-info');
+        element.style.display = "inline"
+        element.innerText = "[-1,1,0,0]"
+      }
+      
+      function goState59(containerId) {
+        goState58(containerId);
+        
+        let element = document.getElementById('line13-info');
+        element.style.display = "inline"
+        element.innerText = "[1,-1,0,0]"
+        
+        element = document.getElementById('line14-info');
+        element.style.display = "inline"
+        element.innerText = "[1,-1,0,0]"
+      }
+
+      function goState60(containerId) {
+        goState59(containerId);
+        
+        let element = document.getElementById('line15-info');
+        element.style.display = "inline"
+        element.innerText = "None"
+      }
+
+      function goState61(containerId) {
+        goState59(containerId);
+        
+        let element = document.getElementById('line9-info');
+        element.style.display = "inline"
+        element.innerText = "0, (State: [0,0,0,-1])"
+
+        element = document.getElementById('line6-info');
+        element.style.display = "inline"
+        element.innerText = "[ (State: [0,0,0,0]), (State: [0,0,0,-1]) ]"
+        
+        element = document.getElementById('line18-info');
+        element.style.display = "inline"
+        element.innerText = "0.5"
+
+        let r2c1 = interactiveRoot.children[0].children[0]
+        r2c1.state = [1, -1, 0, 0]
+        let y = 325
+        let r3c1 = new Node(0*1700/12/2/2, y, null, r2c1, 1)
+        let r3c2 = new Node(2*1700/12/2/2, y, null, r2c1, 1)
+      }
+
+      function goState62(containerId) {
+        goState61(containerId)
+      }
+      
+      function goState63(containerId) {
+        goState62(containerId)
+
+        document.getElementById('line5-info').style.display = "none"
+        document.getElementById('line6-info').style.display = "none"
+        document.getElementById('line9-info').style.display = "none"
+        document.getElementById('line11-info').style.display = "none"
+        document.getElementById('line12-info').style.display = "none"
+        document.getElementById('line13-info').style.display = "none"
+        document.getElementById('line14-info').style.display = "none"
+        document.getElementById('line15-info').style.display = "none"
+        document.getElementById('line18-info').style.display = "none"
+      }
+
+
+
+
+
+
+
+
       function goToState(stateNumber) {
 
         let containerId = '#mcts-demo svg'
@@ -445,6 +1028,7 @@ class Node:
           currentInfo.style.display = "None"
         }
         
+        console.log(state)
         if (state == 0) {
             var activeLine = document.getElementById("line1")
             activeLine.setAttribute('class', 'active-line')
@@ -485,6 +1069,381 @@ class Node:
             activeLine.setAttribute('class', 'active-line')
             goState5(containerId)
         }
+        else if(state == 8) {
+            var activeLine = document.getElementById("line8")
+            activeLine.setAttribute('class', 'active-line')
+            goState5(containerId)
+        }
+        else if(state == 9) {
+            var activeLine = document.getElementById("line11")
+            activeLine.setAttribute('class', 'active-line')
+            goState6(containerId)
+        }
+        else if(state == 10) {
+            var activeLine = document.getElementById("line12")
+            activeLine.setAttribute('class', 'active-line')
+            goState7(containerId)
+        }
+        else if(state == 11) {
+            var activeLine = document.getElementById("line13")
+            activeLine.setAttribute('class', 'active-line')
+            goState8(containerId)
+        }
+        else if(state == 12) {
+            var activeLine = document.getElementById("line14")
+            activeLine.setAttribute('class', 'active-line')
+            goState9(containerId)
+        }
+        else if(state == 13) {
+            var activeLine = document.getElementById("line15")
+            activeLine.setAttribute('class', 'active-line')
+            goState10(containerId)
+        }
+        else if(state == 14) {
+            var activeLine = document.getElementById("line16")
+            activeLine.setAttribute('class', 'active-line')
+            goState10(containerId)
+        }
+        else if(state == 15) {
+            var activeLine = document.getElementById("line18")
+            activeLine.setAttribute('class', 'active-line')
+            goState11(containerId)
+        }
+        else if(state == 16) {
+            var activeLine = document.getElementById("line19")
+            activeLine.setAttribute('class', 'active-line')
+            goState12(containerId)
+        }
+        else if(state == 17) {
+            var activeLine = document.getElementById("line4")
+            activeLine.setAttribute('class', 'active-line')
+            goState13(containerId)
+        }
+        else if(state == 18) {
+            var activeLine = document.getElementById("line5")
+            activeLine.setAttribute('class', 'active-line')
+            goState14(containerId)
+        }
+        else if(state == 19) {
+            var activeLine = document.getElementById("line6")
+            activeLine.setAttribute('class', 'active-line')
+            goState15(containerId)
+        }
+        else if(state == 20) {
+            var activeLine = document.getElementById("line8")
+            activeLine.setAttribute('class', 'active-line')
+            goState15(containerId)
+        }
+        else if(state == 21) {
+            var activeLine = document.getElementById("line9")
+            activeLine.setAttribute('class', 'active-line')
+            goState16(containerId)
+        }
+        else if(state == 22) {
+            var activeLine = document.getElementById("line10")
+            activeLine.setAttribute('class', 'active-line')
+            goState17(containerId)
+        }
+        else if(state == 23) {
+            var activeLine = document.getElementById("line8")
+            activeLine.setAttribute('class', 'active-line')
+            goState17(containerId)
+        }
+        else if(state == 24) {
+            var activeLine = document.getElementById("line11")
+            activeLine.setAttribute('class', 'active-line')
+            goState18(containerId)
+        }
+        else if(state == 25) {
+            var activeLine = document.getElementById("line12")
+            activeLine.setAttribute('class', 'active-line')
+            goState19(containerId)
+        }
+        else if(state == 26) {
+            var activeLine = document.getElementById("line13")
+            activeLine.setAttribute('class', 'active-line')
+            goState20(containerId)
+        }
+        else if(state == 27) {
+            var activeLine = document.getElementById("line14")
+            activeLine.setAttribute('class', 'active-line')
+            goState21(containerId)
+        }
+        else if(state == 28) {
+            var activeLine = document.getElementById("line15")
+            activeLine.setAttribute('class', 'active-line')
+            goState22(containerId)
+        }
+        else if(state == 29) {
+            var activeLine = document.getElementById("line16")
+            activeLine.setAttribute('class', 'active-line')
+            goState22(containerId)
+        }
+        else if(state == 30) {
+            var activeLine = document.getElementById("line18")
+            activeLine.setAttribute('class', 'active-line')
+            goState23(containerId)
+        }
+        else if(state == 31) {
+            var activeLine = document.getElementById("line19")
+            activeLine.setAttribute('class', 'active-line')
+            goState24(containerId)
+        }
+        else if(state == 32) {
+            var activeLine = document.getElementById("line4")
+            activeLine.setAttribute('class', 'active-line')
+            goState25(containerId)
+        }
+        else if(state == 33) {
+            var activeLine = document.getElementById("line5")
+            activeLine.setAttribute('class', 'active-line')
+            goState26(containerId)
+        }
+        else if(state == 34) {
+            var activeLine = document.getElementById("line6")
+            activeLine.setAttribute('class', 'active-line')
+            goState27(containerId)
+        }
+        else if(state == 35) {
+            var activeLine = document.getElementById("line8")
+            activeLine.setAttribute('class', 'active-line')
+            goState27(containerId)
+        }
+        else if(state == 36) {
+            var activeLine = document.getElementById("line9")
+            activeLine.setAttribute('class', 'active-line')
+            goState28(containerId)
+        }
+        else if(state == 37) {
+            var activeLine = document.getElementById("line10")
+            activeLine.setAttribute('class', 'active-line')
+            goState29(containerId)
+        }
+        else if(state == 38) {
+            var activeLine = document.getElementById("line8")
+            activeLine.setAttribute('class', 'active-line')
+            goState30(containerId)
+        }
+        else if(state == 39) {
+            var activeLine = document.getElementById("line11")
+            activeLine.setAttribute('class', 'active-line')
+            goState30(containerId)
+        }
+        else if(state == 40) {
+            var activeLine = document.getElementById("line12")
+            activeLine.setAttribute('class', 'active-line')
+            goState31(containerId)
+        }
+        else if(state == 41) {
+            var activeLine = document.getElementById("line13")
+            activeLine.setAttribute('class', 'active-line')
+            goState32(containerId)
+        }
+        else if(state == 42) {
+            var activeLine = document.getElementById("line14")
+            activeLine.setAttribute('class', 'active-line')
+            goState33(containerId)
+        }
+        else if(state == 43) {
+            var activeLine = document.getElementById("line15")
+            activeLine.setAttribute('class', 'active-line')
+            goState34(containerId)
+        }
+        else if(state == 44) {
+            var activeLine = document.getElementById("line16")
+            activeLine.setAttribute('class', 'active-line')
+            goState34(containerId)
+        }
+        else if(state == 45) {
+            var activeLine = document.getElementById("line18")
+            activeLine.setAttribute('class', 'active-line')
+            goState35(containerId)
+        }
+        else if(state == 46) {
+            var activeLine = document.getElementById("line19")
+            activeLine.setAttribute('class', 'active-line')
+            goState36(containerId)
+        }
+        else if(state == 47) {
+            var activeLine = document.getElementById("line4")
+            activeLine.setAttribute('class', 'active-line')
+            goState37(containerId)
+        }
+        else if(state == 48) {
+            var activeLine = document.getElementById("line5")
+            activeLine.setAttribute('class', 'active-line')
+            goState38(containerId)
+        }
+        else if(state == 49) {
+            var activeLine = document.getElementById("line6")
+            activeLine.setAttribute('class', 'active-line')
+            goState39(containerId)
+        }
+        else if(state == 50) {
+            var activeLine = document.getElementById("line8")
+            activeLine.setAttribute('class', 'active-line')
+            goState39(containerId);
+        }
+        else if(state == 51) {
+            var activeLine = document.getElementById("line9")
+            activeLine.setAttribute('class', 'active-line')
+            goState40(containerId)
+        }
+        else if(state == 52) {
+            var activeLine = document.getElementById("line10")
+            activeLine.setAttribute('class', 'active-line')
+            goState41(containerId)
+        }
+        else if(state == 53) {
+            var activeLine = document.getElementById("line8")
+            activeLine.setAttribute('class', 'active-line')
+            goState41(containerId)
+        }
+        else if(state == 54) {
+            var activeLine = document.getElementById("line11")
+            activeLine.setAttribute('class', 'active-line')
+            goState42(containerId)
+        }
+        else if(state == 55) {
+            var activeLine = document.getElementById("line12")
+            activeLine.setAttribute('class', 'active-line')
+            goState43(containerId)
+        }
+        else if(state == 56) {
+            var activeLine = document.getElementById("line13")
+            activeLine.setAttribute('class', 'active-line')
+            goState44(containerId)
+        }
+        else if(state == 57) {
+            var activeLine = document.getElementById("line14")
+            activeLine.setAttribute('class', 'active-line')
+            goState45(containerId)
+        }
+        else if(state == 58) {
+            var activeLine = document.getElementById("line15")
+            activeLine.setAttribute('class', 'active-line')
+            goState46(containerId)
+        }
+        else if(state == 59) {
+            var activeLine = document.getElementById("line16")
+            activeLine.setAttribute('class', 'active-line')
+            goState46(containerId)
+        }
+        else if(state == 60) {
+            var activeLine = document.getElementById("line18")
+            activeLine.setAttribute('class', 'active-line')
+            goState47(containerId)
+        }
+        else if(state == 61) {
+            var activeLine = document.getElementById("line19")
+            activeLine.setAttribute('class', 'active-line')
+            goState48(containerId)
+        }
+        else if(state == 62) {
+            var activeLine = document.getElementById("line4")
+            activeLine.setAttribute('class', 'active-line')
+            goState49(containerId)
+        }
+        else if(state == 63) {
+            var activeLine = document.getElementById("line5")
+            activeLine.setAttribute('class', 'active-line')
+            goState50(containerId)
+        }
+        else if(state == 64) {
+            var activeLine = document.getElementById("line6")
+            activeLine.setAttribute('class', 'active-line')
+            goState51(containerId)
+        }
+        else if(state == 65) {
+            var activeLine = document.getElementById("line8")
+            activeLine.setAttribute('class', 'active-line')
+            goState51(containerId)
+        }
+        else if(state == 66) {
+            var activeLine = document.getElementById("line9")
+            activeLine.setAttribute('class', 'active-line')
+            goState52(containerId)
+        }
+        else if(state == 67) {
+            var activeLine = document.getElementById("line10")
+            activeLine.setAttribute('class', 'active-line')
+            goState53(containerId)
+        }
+        else if(state == 68) {
+            var activeLine = document.getElementById("line8")
+            activeLine.setAttribute('class', 'active-line')
+            goState53(containerId)
+        }
+        else if(state == 69) {
+            var activeLine = document.getElementById("line9")
+            activeLine.setAttribute('class', 'active-line')
+            goState54(containerId)
+        }
+        else if(state == 70) {
+            var activeLine = document.getElementById("line10")
+            activeLine.setAttribute('class', 'active-line')
+            goState55(containerId)
+        }
+        else if(state == 71) {
+            var activeLine = document.getElementById("line8")
+            activeLine.setAttribute('class', 'active-line')
+            goState55(containerId)
+        }
+        else if(state == 72) {
+            var activeLine = document.getElementById("line11")
+            activeLine.setAttribute('class', 'active-line')
+            goState56(containerId)
+        }
+        else if(state == 73) {
+            var activeLine = document.getElementById("line12")
+            activeLine.setAttribute('class', 'active-line')
+            goState57(containerId)
+        }
+        else if(state == 74) {
+            var activeLine = document.getElementById("line13")
+            activeLine.setAttribute('class', 'active-line')
+            goState58(containerId)
+        }
+        else if(state == 75) {
+            var activeLine = document.getElementById("line14")
+            activeLine.setAttribute('class', 'active-line')
+            goState59(containerId)
+        }
+        else if(state == 76) {
+            var activeLine = document.getElementById("line15")
+            activeLine.setAttribute('class', 'active-line')
+            goState60(containerId)
+        }
+        else if(state == 77) {
+            var activeLine = document.getElementById("line16")
+            activeLine.setAttribute('class', 'active-line')
+            goState60(containerId)
+        }
+        else if(state == 78) {
+            var activeLine = document.getElementById("line18")
+            activeLine.setAttribute('class', 'active-line')
+            goState61(containerId)
+        }
+        else if(state == 79) {
+            var activeLine = document.getElementById("line19")
+            activeLine.setAttribute('class', 'active-line')
+            goState62(containerId)
+        }
+        else if(state == 80) {
+            var activeLine = document.getElementById("line4")
+            activeLine.setAttribute('class', 'active-line')
+            goState63(containerId)
+        }
+        else if(state == 81) {
+            var activeLine = document.getElementById("line20")
+            activeLine.setAttribute('class', 'active-line')
+            goState63(containerId)
+        }
+
+
+        let showStates = true;
+        placeTree(containerId, interactiveRoot, showStates)
+        placeEdges(containerId, interactiveRoot, showStates)
       }
 
       function goBack(figureName) {
@@ -493,30 +1452,24 @@ class Node:
       }
 
       function clearAndGoForward(figureName) {
-        state = (state + 1) % MAX_STATE_NUMBER;
+        state = Math.min(state + 1, MAX_STATE_NUMBER);
         goToState(state);
       }
 
-
-      class Node {
-        constructor(x, y, state, parent, toPlay) {
-          this.x = x;
-          this.y = y;
-          this.state = state;
-          this.parent = parent
-          this.children = []
-          this.toPlay = toPlay
-
-          if (this.parent != null) {
-            this.parent.children.push(this);
-          }
-        }
-      }
 
        const kPath = `M78.3,96.5c-0.1,0.4-0.5,0.6-1.1,0.6H64.9c-0.7,0-1.4-0.3-1.9-1l-20.3-26L37,75.5v20.1 c0,0.9-0.5,1.4-1.4,1.4H26c-0.9,0-1.4-0.5-1.4-1.4V3.9c0-0.9,0.5-1.4,1.4-1.4h9.5C36.5,2.5,37,3,37,3.9v56.5l24.3-24.7 c0.6-0.6,1.3-1,1.9-1H76c0.6,0,0.9,0.2,1.1,0.7c0.2,0.6,0.1,1-0.1,1.2l-25.7,25L78,95.1C78.4,95.5,78.5,95.9,78.3,96.5z`;
        const goose1Path = `M8.8,92.7c-4-18.5,4.7-37.2,20.7-46.2c0,0,2.7-1.4,3.4-1.9c2.2-1.6,3-2.1,3-5c0-5-2.1-7.2-2.1-7.2 c-3.9-3.3-6.3-8.2-6.3-13.7c0-10,8.1-18.1,18.1-18.1s18.1,8.1,18.1,18.1c0,6-1.5,32.7-2.3,38.8l-0.1,1`;
        const goose2Path = `M27.4,19L8.2,27.6c0,0-7.3,2.9,2.6,5c6.1,1.3,24,5.9,24,5.9l1,0.3`;
        const goose3Path =  `M63.7,99.6C52.3,99.6,43,90.3,43,78.9s9.3-20.7,20.7-20.7c10.6,0,34.4,0.1,35.8,9`;
+
+      function placeTree(containerId, node, showStates) {
+          placeBoard(containerId, node, boardHeight, boardWidth, showStates)
+
+         for (var i = 0; i < node.children.length; i++) {
+          //Recursively place nodes
+          placeTree(containerId, node.children[i], showStates);
+        }
+      }
 
       function placeEdges(containerId, node) {
 
@@ -703,13 +1656,12 @@ class Node:
             .attr('fill', "white")
             .text(text)
           }
-
-          placeEmptySlot(svg, 0,   0);
-          placeEmptySlot(svg, 160 + margin, 0);
-          placeEmptySlot(svg, 320 + margin + margin, 0);
-          placeEmptySlot(svg, 480 + margin + margin + margin, 0);
-
-
+          if (node.state !== null){
+            placeEmptySlot(svg, 0,   0);
+            placeEmptySlot(svg, 160 + margin, 0);
+            placeEmptySlot(svg, 320 + margin + margin, 0);
+            placeEmptySlot(svg, 480 + margin + margin + margin, 0);
+          }
       }
 
       function drawTree(containerId, showStates) {
@@ -720,144 +1672,92 @@ class Node:
 
         let y = 25;
         let root = new Node(860-32, y, [0,0,0,0], null, 1)
-        placeBoard(containerId, root, boardHeight, boardWidth, showStates)
 
         y = 125
         let r1c1 = new Node(2*1700/12/2, y, [1,  0,  0,  0], root, -1)
         let r1c2 = new Node(9*1700/12/2, y, [0,  1,  0,  0], root, -1)
         let r1c3 = new Node(14*1700/12/2, y, [0,  0,  1,  0], root, -1)
         let r1c4 = new Node(21*1700/12/2, y, [0,  0,  0,  1], root, -1)
-        placeBoard(containerId, r1c1, boardHeight, boardWidth, showStates)
-        placeBoard(containerId, r1c2, boardHeight, boardWidth, showStates)
-        placeBoard(containerId, r1c3, boardHeight, boardWidth, showStates)
-        placeBoard(containerId, r1c4, boardHeight, boardWidth, showStates)
 
         y = 225
         let r2c1 = new Node(1*1700/12/2/2, y, [1, -1,  0,  0], r1c1, 1)
         let r2c2 = new Node(4*1700/12/2/2, y, [1,  0, -1,  0], r1c1, 1)
         let r2c3 = new Node(7*1700/12/2/2, y, [1,  0,  0, -1], r1c1, 1)
-        placeBoard(containerId, r2c1, boardHeight, boardWidth, showStates)
-        placeBoard(containerId, r2c2, boardHeight, boardWidth, showStates)
-        placeBoard(containerId, r2c3, boardHeight, boardWidth, showStates)
         
         let r2c4 = new Node(14*1700/12/2/2, y, [-1,  1,  0,  0], r1c2, 1)
         let r2c5 = new Node(17*1700/12/2/2, y, [ 0,  1, -1,  0], r1c2, 1)
         let r2c6 = new Node(20*1700/12/2/2, y, [ 0,  1,  0, -1], r1c2, 1)
-        placeBoard(containerId, r2c4, boardHeight, boardWidth, showStates)
-        placeBoard(containerId, r2c5, boardHeight, boardWidth, showStates)
-        placeBoard(containerId, r2c6, boardHeight, boardWidth, showStates)
         
         let r2c7 = new Node(26*1700/12/2/2, y, [-1,  0,  1,  0], r1c3, 1)
         let r2c8 = new Node(29*1700/12/2/2, y, [ 0, -1,  1,  0], r1c3, 1)
         let r2c9 = new Node(32*1700/12/2/2, y, [ 0,  0,  1, -1], r1c3, 1)
-        placeBoard(containerId, r2c7, boardHeight, boardWidth, showStates)
-        placeBoard(containerId, r2c8, boardHeight, boardWidth, showStates)
-        placeBoard(containerId, r2c9, boardHeight, boardWidth, showStates)
         
         let r2c10 = new Node(39*1700/12/2/2, y, [-1,  0,  0,  1], r1c4, 1)
         let r2c11 = new Node(42*1700/12/2/2, y, [ 0, -1,  0,  1], r1c4, 1)
         let r2c12 = new Node(45*1700/12/2/2, y, [ 0,  0, -1,  1], r1c4, 1)
-        placeBoard(containerId, r2c10, boardHeight, boardWidth, showStates)
-        placeBoard(containerId, r2c11, boardHeight, boardWidth, showStates)
-        placeBoard(containerId, r2c12, boardHeight, boardWidth, showStates)
 
         y = 325
         let r3c1 = new Node(0*1700/12/2/2, y, [ 1, -1,  1,  0], r2c1, -1)
         let r3c2 = new Node(2*1700/12/2/2, y, [ 1, -1,  0,  1], r2c1, -1)
-        placeBoard(containerId, r3c1, boardHeight, boardWidth, showStates)
-        placeBoard(containerId, r3c2, boardHeight, boardWidth, showStates)
         
         let r3c3 = new Node(4*1700/12/2/2, y, [ 1,  1, -1,  0], r2c2, -1)
         let r3c4 = new Node(6*1700/12/2/2, y, [ 1,  0, -1,  1], r2c2, -1)
-        placeBoard(containerId, r3c3, boardHeight, boardWidth, showStates)
-        placeBoard(containerId, r3c4, boardHeight, boardWidth, showStates)
 
         let r3c5 = new Node(8*1700/12/2/2, y,  [ 1,  1,  0, -1], r2c3, -1)
         let r3c6 = new Node(10*1700/12/2/2, y, [ 1,  0,  1, -1], r2c3, -1)
-        placeBoard(containerId, r3c5, boardHeight, boardWidth, showStates)
-        placeBoard(containerId, r3c6, boardHeight, boardWidth, showStates)
         
         let r3c7 = new Node(12*1700/12/2/2, y, [-1,  1,  1,  0], r2c4, -1)
         let r3c8 = new Node(14*1700/12/2/2, y, [-1,  1,  0,  1], r2c4, -1)
-        placeBoard(containerId, r3c7, boardHeight, boardWidth, showStates)
-        placeBoard(containerId, r3c8, boardHeight, boardWidth, showStates)
         
         let r3c9  = new Node(16*1700/12/2/2, y, [ 1,  1, -1,  0], r2c5, -1)
         let r3c10 = new Node(18*1700/12/2/2, y, [ 0,  1, -1,  1], r2c5, -1)
-        placeBoard(containerId, r3c9, boardHeight, boardWidth, showStates)
-        placeBoard(containerId, r3c10, boardHeight, boardWidth, showStates)
         
         let r3c11 = new Node(20*1700/12/2/2, y, [ 1,  1,  0, -1], r2c6, -1)
         let r3c12 = new Node(22*1700/12/2/2, y, [ 0,  1,  1, -1], r2c6, -1)
-        placeBoard(containerId, r3c11, boardHeight, boardWidth, showStates)
-        placeBoard(containerId, r3c12, boardHeight, boardWidth, showStates)
         
         let r3c13 = new Node(24*1700/12/2/2, y, [-1,  1,  1,  0], r2c7, -1)
         let r3c14 = new Node(26*1700/12/2/2, y, [-1,  0,  1,  1], r2c7, -1)
-        placeBoard(containerId, r3c13, boardHeight, boardWidth, showStates)
-        placeBoard(containerId, r3c14, boardHeight, boardWidth, showStates)
         
         let r3c15 = new Node(28*1700/12/2/2, y, [ 1, -1,  1,  0], r2c8, -1)
         let r3c16 = new Node(30*1700/12/2/2, y, [ 0, -1,  1,  1], r2c8, -1)
-        placeBoard(containerId, r3c15, boardHeight, boardWidth, showStates)
-        placeBoard(containerId, r3c16, boardHeight, boardWidth, showStates)
         
         let r3c17 = new Node(32*1700/12/2/2, y, [ 1,  0,  1, -1], r2c9, -1)
         let r3c18 = new Node(34*1700/12/2/2, y, [ 0,  1,  1, -1], r2c9, -1)
-        placeBoard(containerId, r3c17, boardHeight, boardWidth, showStates)
-        placeBoard(containerId, r3c18, boardHeight, boardWidth, showStates)
         
         let r3c19 = new Node(36*1700/12/2/2, y, [-1,  1,  0,  1], r2c10, -1)
         let r3c20 = new Node(38*1700/12/2/2, y, [-1,  0,  1,  1], r2c10, -1)
-        placeBoard(containerId, r3c19, boardHeight, boardWidth, showStates)
-        placeBoard(containerId, r3c20, boardHeight, boardWidth, showStates)
         
         let r3c21 = new Node(40*1700/12/2/2, y, [ 1, -1,  0,  1], r2c11, -1)
         let r3c22 = new Node(42*1700/12/2/2, y, [ 0, -1,  1,  1], r2c11, -1)
-        placeBoard(containerId, r3c21, boardHeight, boardWidth, showStates)
-        placeBoard(containerId, r3c22, boardHeight, boardWidth, showStates)
         
         let r3c23 = new Node(44*1700/12/2/2, y, [ 1,  0, -1,  1], r2c12, -1)
         let r3c24 = new Node(46*1700/12/2/2, y, [ 0,  1, -1,  1], r2c12, -1)
-        placeBoard(containerId, r3c23, boardHeight, boardWidth, showStates)
-        placeBoard(containerId, r3c24, boardHeight, boardWidth, showStates)
 
         y = 425
         let r4c1 = new Node(0*1700/12/2/2, y, [ 1, -1,  1, -1], r3c1, -1)
         let r4c2 = new Node(2*1700/12/2/2, y, [ 1, -1, -1,  1], r3c2, -1)
-        placeBoard(containerId, r4c1, boardHeight, boardWidth, showStates)
-        placeBoard(containerId, r4c2, boardHeight, boardWidth, showStates)
 
         let r4c3 = new Node(6*1700/12/2/2, y, [ 1, -1, -1,  1], r3c4, 1)
-        placeBoard(containerId, r4c3, boardHeight, boardWidth, showStates)
 
         let r4c4 = new Node(10*1700/12/2/2, y, [ 1, -1,  1, -1], r3c6, 1)
-        placeBoard(containerId, r4c4, boardHeight, boardWidth, showStates)
 
         let r4c5 = new Node(14*1700/12/2/2, y, [-1,  1, -1,  1], r3c8, 1)
-        placeBoard(containerId, r4c5, boardHeight, boardWidth, showStates)
 
         let r4c6 = new Node(18*1700/12/2/2, y, [-1,  1, -1,  1], r3c10, 1)
-        placeBoard(containerId, r4c6, boardHeight, boardWidth, showStates)
 
         let r4c7 = new Node(28*1700/12/2/2, y, [1, -1,  1, -1], r3c15, 1)
-        placeBoard(containerId, r4c7, boardHeight, boardWidth, showStates)
 
         let r4c8 = new Node(32*1700/12/2/2, y, [ 1, -1,  1, -1], r3c17, 1)
-        placeBoard(containerId, r4c8, boardHeight, boardWidth, showStates)
 
         let r4c9 = new Node(36*1700/12/2/2, y, [-1,  1, -1,  1], r3c19, 1)
-        placeBoard(containerId, r4c9, boardHeight, boardWidth, showStates)
 
         let r4c10 = new Node(40*1700/12/2/2, y, [ 1, -1, -1,  1], r3c21, 1)
-        placeBoard(containerId, r4c10, boardHeight, boardWidth, showStates)
 
         let r4c11 = new Node(44*1700/12/2/2, y, [ 1, -1, -1,  1], r3c23, 1)
         let r4c12 = new Node(46*1700/12/2/2, y, [-1,  1, -1,  1], r3c24, 1)
-        placeBoard(containerId, r4c11, boardHeight, boardWidth, showStates)
-        placeBoard(containerId, r4c12, boardHeight, boardWidth, showStates)
 
         // Place edges
+        placeTree(containerId, root, showStates)
         placeEdges(containerId, root)
       }
 
