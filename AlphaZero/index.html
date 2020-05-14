@@ -332,7 +332,7 @@ class Node:
 </figure>
 
         <figure id="mcts-demo" style="height:600px;width:100%;margin:0;background:#000b2a">
-          <svg style="background:#000b2a; margin: 0 auto; display:block; width:1700px; height:500px; padding-top:25px;"></svg>
+          <svg style="background:#000b2a; margin: 0 auto; display:block; width:1750px; height:500px; padding-top:25px;"></svg>
         </figure>
       </dt-article>
 
@@ -357,13 +357,14 @@ class Node:
 
     <script>
       class Node {
-        constructor(x, y, state, parent, toPlay) {
+        constructor(x, y, state, parent, toPlay, stats) {
           this.x = x;
           this.y = y;
           this.state = state;
           this.parent = parent
           this.children = []
           this.toPlay = toPlay
+          this.stats = stats
 
           if (this.parent != null) {
             this.parent.children.push(this);
@@ -376,31 +377,30 @@ class Node:
       let MAX_STATE_NUMBER = 81;
       let boardHeight = 15;
       let boardWidth = 63;
-      let interactiveRoot = new Node(860-32, 25, null, null, 1)
+      let interactiveRoot = new Node(860-32, 30, null, null, 1, {v : 0, n: 0, p: "None"})
 
       function goState0(containerId) {
         let showStates = true;
 
-        interactiveRoot = new Node(860-32, 25, null, null, 1)
+        interactiveRoot = new Node(860-32, 30, null, null, 1, {v : 0, n: 0, p: "None"})
         let element = document.getElementById('line1-info');
         element.style.display = "inline"
         element.innerText = "(State: None)"
       }
 
       function goState1(containerId) {
-        let y = 25;
         let showStates = true;
 
-        interactiveRoot = new Node(860-32, 25, [0,0,0,0], null, 1)
+        interactiveRoot = new Node(860-32, 30, [0,0,0,0], null, 1, {v : 0, n: 0, p: "None"}) 
 
         let element = document.getElementById('line1-info');
         element.style.display = "inline"
         element.innerText = "(State: [0,0,0,0])"
         
-        let r1c1 = new Node(2*1700/12/2, 125, null, interactiveRoot, -1)
-        let r1c2 = new Node(9*1700/12/2, 125, null, interactiveRoot, -1)
-        let r1c3 = new Node(14*1700/12/2, 125, null, interactiveRoot, -1)
-        let r1c4 = new Node(21*1700/12/2, 125, null, interactiveRoot, -1)
+        let r1c1 = new Node(2*1700/12/2, 125, null, interactiveRoot, -1, {p: 0.25, v:0, n:0})
+        let r1c2 = new Node(9*1700/12/2, 125, null, interactiveRoot, -1, {p: 0.25, v:0, n:0})
+        let r1c3 = new Node(14*1700/12/2, 125, null, interactiveRoot, -1, {p: 0.25, v:0, n:0})
+        let r1c4 = new Node(21*1700/12/2, 125, null, interactiveRoot, -1, {p: 0.25, v:0, n:0})
       }
 
       function goState2(containerId) {
@@ -498,14 +498,20 @@ class Node:
         let r1c1 = interactiveRoot.children[0]
         r1c1.state = [1, 0, 0, 0]
         y = 225
-        let r2c1 = new Node(1*1700/12/2/2, y, null, r1c1, 1)
-        let r2c2 = new Node(4*1700/12/2/2, y, null, r1c1, 1)
-        let r2c3 = new Node(7*1700/12/2/2, y, null, r1c1, 1)
-        
+        let r2c1 = new Node(1*1700/12/2/2, y, null, r1c1, 1, {p: 0.33, v:0, n:0})
+        let r2c2 = new Node(4*1700/12/2/2, y, null, r1c1, 1, {p: 0.33, v:0, n:0})
+        let r2c3 = new Node(7*1700/12/2/2, y, null, r1c1, 1, {p: 0.33, v:0, n:0})
       }
 
-      function goState12(containerId) { 
+      function goState12(containerId) {
         goState11(containerId);
+
+        interactiveRoot.stats.v = -0.5
+        interactiveRoot.stats.n = 1
+
+        let r1c1 = interactiveRoot.children[0]
+        r1c1.stats.v = 0.5
+        r1c1.stats.n = 1
       }
 
       function goState13(containerId) {
@@ -615,13 +621,20 @@ class Node:
         let r1c2 = interactiveRoot.children[1]
         r1c2.state = [0, 1, 0, 0]
         y = 225
-        let r2c4 = new Node(14*1700/12/2/2, y, null, r1c2, 1)
-        let r2c5 = new Node(17*1700/12/2/2, y, null, r1c2, 1)
-        let r2c6 = new Node(20*1700/12/2/2, y, null, r1c2, 1)
+        let r2c4 = new Node(14*1700/12/2/2, y, null, r1c2, 1, {p: 0.33, v:0, n:0})
+        let r2c5 = new Node(17*1700/12/2/2, y, null, r1c2, 1, {p: 0.33, v:0, n:0})
+        let r2c6 = new Node(20*1700/12/2/2, y, null, r1c2, 1, {p: 0.33, v:0, n:0})
       }
 
       function goState24(containerId) {
         goState23(containerId);
+
+        interactiveRoot.stats.v = -0.5
+        interactiveRoot.stats.n = 2
+
+        let r1c2 = interactiveRoot.children[1]
+        r1c2.stats.v = 0.5
+        r1c2.stats.n = 1
       }
       
       function goState25(containerId) {
@@ -730,13 +743,20 @@ class Node:
         let r1c3 = interactiveRoot.children[2]
         r1c3.state = [0, 0, 1, 0]
         let y = 225
-        let r2c7 = new Node(26*1700/12/2/2, y, null, r1c3, 1)
-        let r2c8 = new Node(29*1700/12/2/2, y, null, r1c3, 1)
-        let r2c9 = new Node(32*1700/12/2/2, y, null, r1c3, 1)
+        let r2c7 = new Node(26*1700/12/2/2, y, null, r1c3, 1, {p: 0.33, v:0, n:0})
+        let r2c8 = new Node(29*1700/12/2/2, y, null, r1c3, 1, {p: 0.33, v:0, n:0})
+        let r2c9 = new Node(32*1700/12/2/2, y, null, r1c3, 1, {p: 0.33, v:0, n:0})
       }
 
       function goState36(containerId) {
         goState35(containerId);
+
+        interactiveRoot.stats.v = -0.5
+        interactiveRoot.stats.n = 3
+
+        let r1c3 = interactiveRoot.children[2]
+        r1c3.stats.v = 0.5
+        r1c3.stats.n = 1
       }
 
       function goState37(containerId) {
@@ -847,14 +867,20 @@ class Node:
         let r1c4 = interactiveRoot.children[3]
         r1c4.state = [0, 0, 0, 1]
         let y = 225
-        let r2c10 = new Node(39*1700/12/2/2, y, null, r1c4, 1)
-        let r2c11 = new Node(42*1700/12/2/2, y, null, r1c4, 1)
-        let r2c12 = new Node(45*1700/12/2/2, y, null, r1c4, 1)
+        let r2c10 = new Node(39*1700/12/2/2, y, null, r1c4, 1, {p: 0.33, v:0, n:0})
+        let r2c11 = new Node(42*1700/12/2/2, y, null, r1c4, 1, {p: 0.33, v:0, n:0})
+        let r2c12 = new Node(45*1700/12/2/2, y, null, r1c4, 1, {p: 0.33, v:0, n:0})
       }
 
       function goState48(containerId) {
         goState47(containerId);
 
+        interactiveRoot.stats.v = -0.5
+        interactiveRoot.stats.n = 4
+
+        let r1c3 = interactiveRoot.children[3]
+        r1c3.stats.v = 0.5
+        r1c3.stats.n = 1
       }
 
       function goState49(containerId) {
@@ -980,12 +1006,23 @@ class Node:
         let r2c1 = interactiveRoot.children[0].children[0]
         r2c1.state = [1, -1, 0, 0]
         let y = 325
-        let r3c1 = new Node(0*1700/12/2/2, y, null, r2c1, 1)
-        let r3c2 = new Node(2*1700/12/2/2, y, null, r2c1, 1)
+        let r3c1 = new Node(0*1700/12/2/2, y, null, r2c1, 1, {p: 0.5, v:0, n:0})
+        let r3c2 = new Node(4*1700/12/2/2, y, null, r2c1, 1, {p: 0.5, v:0, n:0})
       }
 
       function goState62(containerId) {
         goState61(containerId)
+
+        interactiveRoot.stats.v = -0.3
+        interactiveRoot.stats.n = 5
+
+        let r2c1 = interactiveRoot.children[0]
+        r2c1.stats.v = 0
+        r2c1.stats.n = 2
+
+        let r3c1 = interactiveRoot.children[0].children[0]
+        r3c1.stats.v = 0.5
+        r3c1.stats.n = 1
       }
       
       function goState63(containerId) {
@@ -1001,13 +1038,6 @@ class Node:
         document.getElementById('line15-info').style.display = "none"
         document.getElementById('line18-info').style.display = "none"
       }
-
-
-
-
-
-
-
 
       function goToState(stateNumber) {
 
@@ -1616,6 +1646,44 @@ class Node:
           .attr('style', 'background:#000b2a')
           .attr('x', node.x)
           .attr('y', node.y)
+
+          if (node.stats !== undefined) {
+            //Show stats
+            let text = ""
+            let x = node.x + 65
+            let y = node.y - 20
+            text = "Prior: " + node.stats.p;
+            container.append("text")
+              .attr('font-family', 'Arial,"Helvetica Neue",Helvetica,sans-serif')
+              .attr('font-size', '0.6rem')
+              .attr('x', x)
+              .attr('y', y)
+              .attr('fill', "white")
+              .text(text)
+
+            y = node.y - 5
+            text = "Value: " + node.stats.v;
+            
+            container.append("text")
+              .attr('font-family', 'Arial,"Helvetica Neue",Helvetica,sans-serif')
+              .attr('font-size', '0.6rem')
+              .attr('x', x)
+              .attr('y', y)
+              .attr('fill', "white")
+              .text(text)
+            
+            y = node.y + 10
+            text = "Visit Count: " + node.stats.n;
+            
+            container.append("text")
+              .attr('font-family', 'Arial,"Helvetica Neue",Helvetica,sans-serif')
+              .attr('font-size', '0.6rem')
+              .attr('x', x)
+              .attr('y', y)
+              .attr('fill', "white")
+              .text(text)
+
+          }
 
           if (showStates) {
 
