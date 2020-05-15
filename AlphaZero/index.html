@@ -18,6 +18,10 @@
         color: #5b94cf;
       }
 
+      .className {
+        color: #4ec9b0;
+      }
+
       .secondary-keyword {
         color:#dcdcaa;
       }
@@ -103,7 +107,7 @@
       </script>
       
       <dt-article>
-        <h1>Alpha Zero</h1>
+        <h1>AlphaZero</h1>
         <h2>Four out of five dentists agree that this is absolute most basic introduction to AlphaZero and Monte Carlo Tree Search ever produced by the human race.</h2>
         <dt-byline></dt-byline>
 
@@ -125,8 +129,8 @@
 
         <p>
           In Connect2 players alternate between playing pieces on a tiny <code>1x4</code> board with the goal of placing two of their pieces side-by-side. 
-          It's comically easy to win as the first player, but Connect2 still has the interesting property that either player technically has the chance to win, lose or draw. 
-          This means we can use it as a test bed to debug and visualize a super-basic implementation of AlphaZero and Monte Carlo Search Trees.
+          It's comically easy to win as the first player, but Connect2 still has the interesting property that either player <em>technically</em> has the chance to win, lose or draw. 
+          This means we can use it as a test bed to debug and visualize a super-basic implementation of AlphaZero and Monte Carlo Tree Search.
         </p>
 
         <p>
@@ -161,7 +165,7 @@
         </figure>
         <hr>
 
-        <h2>Alpha Zero</h2>
+        <h2>AlphaZero</h2>
 
         <p>AlphaZero is built from three core pieces:
           <ol>
@@ -247,7 +251,7 @@
 
         <h4>Training</h4>
         <p>
-          One thing I find counter-intuitive about AlphaZero is that we don't directly train our policy network to make "good" moves. 
+          One thing I found counter-intuitive about AlphaZero is that we don't directly train our policy network to make "good" moves. 
           Instead we train it to mimic the output of the Monte Carlo Tree Search. As we play games, the policy network suggests moves to Monte Carlo Tree Search. MCTS uses these suggestions (or priors) 
           to explore the game tree and returns a  better set of probabilities for a given state. We record the <strong>state</strong> and the 
           <strong>probabilities produced by the MCTS</strong>. For example, a sample game might look like:
@@ -272,19 +276,29 @@
         <p>The search tree we're using is the same as the ones shown above. Each node represents a reachable board state and the edges represent actions that 
           a player can take in that state. Each node stores a few pieces of information on it:
         </p>
+<figure style="background: #1e1e1e;margin:0;width:100%;color:#dfdfdf">
+<div style="max-width: 1000px;margin:0 auto; font-size:0.85rem;line-height: 1.3rem;">
+<pre style="margin:0;padding:10px 0;"><span id="line0"><span class="keyword">class</span> <span class="className">Node</span>:
+  <span class="keyword">def</span> __init__(<span class="args">self</span>, <span class="args">prior</span>, <span class="args">to_play</span>):
+      <span class="keyword">self</span>.prior = prior      <span class="comment"># The prior probability of selecting this state from its parent</span>
+      <span class="keyword">self</span>.to_play = to_play  <span class="comment"># The player whose turn it is. (1 or -1)</span>
 
-        <dt-code block language="python">
-class Node:
-  def __init__(self, prior, to_play):
-      self.visit_count = 0    # Number of times this state was visited during MCTS. "Good" are visited more then "bad" states.
-      self.to_play = to_play  # The player whose turn it is. (1 or -1)
-      self.prior = prior      # The prior probability of selecting this state from its parent
-      self.value_sum = 0      # The total value of this state from all visits
-      self.children = {}      # A lookup of legal child positions
-      self.state = None       # The board state as this node
-        </dt-code>
+      <span class="keyword">self</span>.children = {}      <span class="comment"># A lookup of legal child positions</span>
+      <span class="keyword">self</span>.visit_count = 0    <span class="comment"># Number of times this state was visited during MCTS. "Good" are visited more then "bad" states.</span>
+      <span class="keyword">self</span>.value_sum = 0      <span class="comment"># The total value of this state from all visits</span>
+      <span class="keyword">self</span>.state = None       <span class="comment"># The board state as this node</span>
+
+  <span class="keyword">def</span> value(<span class="args">self</span>):
+      <span class="comment"> # Average value for a node</span>
+      <span class="keyword">return</span> <span class="keyword">self</span>.value_sum / <span class="keyword">self</span>.visit_count  
+</pre>
+  </div>
+</figure>
+
         <p>
-          Monte Carlo Tree Search is comprised of running three stages multiple times. These stages are:
+          Starting with an empty tree, Monte Carlo Tree Search iteratively builds up a portion of the game tree by running a number of "simulations". Each simulation
+          adds a single node to the game tree and consists of three stages:
+
           <ol>
             <li>Select</li>
             <li>Expand</li>
@@ -292,12 +306,18 @@ class Node:
           </ol>
         </p>
 
-        <p>Before we try to understand each stage, let's watch Monte Carlo Tree search to try to get a feel for how it all works.</p>
+        <p>Generally, the more simulations we run, the better we can expect our model to play. When playing Go, AlphaZero was configured to run 1,600 simulations per move.</p>
+
+        <p>Before we try to understand each stage, let's watch Monte Carlo Tree Search in action to try to get a feel for how it all works. Below we run only <strong>five</strong> simulations to build up 
+          a small portion of the overall game tree. 
+        </p>
+
+        <p><strong>Note:</strong> In the below simluation we have hard-coded our policy network to output equal priors for every move (that is, it says every move looks equally promising) and an arbitrary value of 0.5 for every position.</p>
 
 
 <figure style="background: #1e1e1e;margin:0;width:100%;color:#dfdfdf">
 <div style="max-width: 1000px;margin:0 auto; font-size:0.85rem;line-height: 1.3rem;">
-<pre style="margin:0;padding:10px 0;"><span id="line0"><span class="keyword">def</span> <span class="secondary-keyword">run</span>(<span class="args">self</span>, <span class="args">state</span>, <span class="args">to_play</span>, <span class="args">num_simulations</span>):</span>
+<pre style="margin:0;padding:10px 0;"><span id="line0"><span class="keyword">def</span> <span class="secondary-keyword">run</span>(<span class="args">self</span>, <span class="args">state</span>, <span class="args">to_play</span>, <span class="args">num_simulations</span>=5):</span>
     <span id="line1">root = Node(0, to_play)</span>                                                       <span id="line1-info" class="variable-info"></span>
     <span id="line2"class="comment"># EXPAND root</span>
     <span id="line3">root.expand(<span class="keyword">self</span>.model, <span class="keyword">self</span>.game, state, to_play)</span>
@@ -327,14 +347,69 @@ class Node:
       <button class="play" onclick="play('mcts')" title="Play"></button>
       <button class="stop" onclick="pause('mcts')" title="Stop"></button>
       <button class="forward" onclick="clearAndGoForward('mcts')" title="Next"></button>
-  </div>
+    </div>
   </div>
 </figure>
 
         <figure id="mcts-demo" style="height:600px;width:100%;margin:0;background:#000b2a">
           <svg style="background:#000b2a; margin: 0 auto; display:block; width:1750px; height:500px; padding-top:25px;"></svg>
         </figure>
-      </dt-article>
+
+        <p>
+          Now that we've watched Monte Carlo Tree Search, let's break down what's actually going on here. We start by creating a root node for the current state of the board and "Expanding" it. 
+          When we expand a node, we ask our policy network to give us a list of prior probabilities for every possible move we could make. We then add these possible moves as child nodes to the current node.
+          We haven't actually explored these child nodes, we just know that we are legally allowed make these moves and they will bring us to some unknown state.
+        </p>
+
+        <p>
+          After expanding the root node, we begin our very first MCTS simulation. Our goal here is to find an unvisited leaf node and EXPAND it as we did the root.
+          But how do we choose which node to expand? We greedily select the child node with the highest "Upper Confidence Bound (UCB) Score". 
+        </p>
+
+        <p>UCB Score attempts to take into account three things when producing a score:</p>
+        <ol>
+          <li>The prior probability for the child action</li>
+          <li>The value for the state the child action leads to</li>
+          <li>The number of times we've taken this action in past simulations</li>
+        </ol>
+
+        <figure style="background: #1e1e1e;margin:0;width:100%;color:#dfdfdf">
+          <div style="max-width: 1000px;margin:0 auto; font-size:0.85rem;line-height: 1.3rem;">
+          <pre style="margin:0;padding:10px 0;">
+<span class="keyword">def</span> ucb_score(<span class="args">parent</span>, <span class="args">child</span>):
+    prior_score = child.prior * math.sqrt(parent.visit_count) / (child.visit_count + 1)
+    <span class="keyword">if</span> child.visit_count > 0:
+        <span class="comment"># The value of the child is from the perspective of the opposing player</span>
+        value_score = -child.value()
+    <span class="keyword">else</span>:
+        value_score = 0
+
+    <span class="keyword">return</span> value_score + prior_score
+          </pre>
+          </div>
+        </figure>
+
+
+    <p>We repeatedly select child nodes using UCB Score to guide our search and use search_path to keep track of the nodes we've visited.
+      Once we reach a leaf node, we check whether or not the game has ended. If the game is complete we don't need to expand this leaf node.
+      If the game is not complete, we expand the leaf node the same way as before: We ask the policy network for a set of priors and assign those to the newly created nodes.
+    </p>
+
+    <p>After expanding the node, we enter the last stage of our MCTS simluation: Backup. In this stage, we update the statistics (visit_count and value_sum) for 
+      every node in the search_path. Updating these statistics will change their UCB score, and guide our next MCTS simulation.
+    </p>
+
+    <p>After we've run the maximum number of simulations, we return the root of the game tree. The child of this root with the highest visit count is the "best" action. 
+      If we're playing competitively this is probably the action we want to take. If we're training, we usually want to encourage more exploration and instead use the 
+      visit counts to create a probability distribution that we can sample from. Better moves are still more likely to be selected, but it gives our model the opportunity
+      to select potentially subpar moves and strengthens the breadth of its knowledge.
+    </p>
+
+    <h3>More resources</h3>
+    <p><a href="https://www.gwern.net/docs/rl/2017-silver.pdf">Mastering the game of Go without human knowledge</a></p>
+    <p><a href="https://arxiv.org/pdf/1712.01815.pdf">Mastering Chess and Shogi by Self-Play with a General Reinforcement Learning Algorithm</a></p>
+
+    </dt-article>
 
       
       <dt-appendix>
@@ -372,13 +447,33 @@ class Node:
           }
         }
       }
-
+      
+      const kPath = `M78.3,96.5c-0.1,0.4-0.5,0.6-1.1,0.6H64.9c-0.7,0-1.4-0.3-1.9-1l-20.3-26L37,75.5v20.1 c0,0.9-0.5,1.4-1.4,1.4H26c-0.9,0-1.4-0.5-1.4-1.4V3.9c0-0.9,0.5-1.4,1.4-1.4h9.5C36.5,2.5,37,3,37,3.9v56.5l24.3-24.7 c0.6-0.6,1.3-1,1.9-1H76c0.6,0,0.9,0.2,1.1,0.7c0.2,0.6,0.1,1-0.1,1.2l-25.7,25L78,95.1C78.4,95.5,78.5,95.9,78.3,96.5z`;
+      const goose1Path = `M8.8,92.7c-4-18.5,4.7-37.2,20.7-46.2c0,0,2.7-1.4,3.4-1.9c2.2-1.6,3-2.1,3-5c0-5-2.1-7.2-2.1-7.2 c-3.9-3.3-6.3-8.2-6.3-13.7c0-10,8.1-18.1,18.1-18.1s18.1,8.1,18.1,18.1c0,6-1.5,32.7-2.3,38.8l-0.1,1`;
+      const goose2Path = `M27.4,19L8.2,27.6c0,0-7.3,2.9,2.6,5c6.1,1.3,24,5.9,24,5.9l1,0.3`;
+      const goose3Path =  `M63.7,99.6C52.3,99.6,43,90.3,43,78.9s9.3-20.7,20.7-20.7c10.6,0,34.4,0.1,35.8,9`;
 
       let state = -1;
       let MAX_STATE_NUMBER = 81;
       let boardHeight = 15;
       let boardWidth = 63;
       let interactiveRoot = new Node(860-32, 30, null, null, 1, {v : 0, n: 0, p: "None"})
+      var runningInterval = null
+
+      function pause() {
+        clearInterval(runningInterval);
+      }
+
+      function play(linePrefix) {
+        //clearInterval(glowInterval);
+        //glowingPlayButton.classed("active", false);
+        clearInterval(runningInterval);
+
+        runningInterval = setInterval(function () {
+            goFoward(linePrefix);
+        }, 1000);
+      }
+
 
       function goState0(containerId) {
         let showStates = true;
@@ -1115,7 +1210,6 @@ class Node:
           currentInfo.style.display = "None"
         }
         
-        console.log(state)
         if (state == 0) {
             var activeLine = document.getElementById("line1")
             activeLine.setAttribute('class', 'active-line')
@@ -1539,20 +1633,20 @@ class Node:
       }
 
       function goBack(figureName) {
+        clearInterval(runningInterval)
         state = Math.max(state - 1, 0);
         goToState(state);
       }
 
       function clearAndGoForward(figureName) {
+        clearInterval(runningInterval)
+        goFoward(figureName)
+      }
+
+      function goFoward(figureName) {
         state = Math.min(state + 1, MAX_STATE_NUMBER);
         goToState(state);
       }
-
-
-       const kPath = `M78.3,96.5c-0.1,0.4-0.5,0.6-1.1,0.6H64.9c-0.7,0-1.4-0.3-1.9-1l-20.3-26L37,75.5v20.1 c0,0.9-0.5,1.4-1.4,1.4H26c-0.9,0-1.4-0.5-1.4-1.4V3.9c0-0.9,0.5-1.4,1.4-1.4h9.5C36.5,2.5,37,3,37,3.9v56.5l24.3-24.7 c0.6-0.6,1.3-1,1.9-1H76c0.6,0,0.9,0.2,1.1,0.7c0.2,0.6,0.1,1-0.1,1.2l-25.7,25L78,95.1C78.4,95.5,78.5,95.9,78.3,96.5z`;
-       const goose1Path = `M8.8,92.7c-4-18.5,4.7-37.2,20.7-46.2c0,0,2.7-1.4,3.4-1.9c2.2-1.6,3-2.1,3-5c0-5-2.1-7.2-2.1-7.2 c-3.9-3.3-6.3-8.2-6.3-13.7c0-10,8.1-18.1,18.1-18.1s18.1,8.1,18.1,18.1c0,6-1.5,32.7-2.3,38.8l-0.1,1`;
-       const goose2Path = `M27.4,19L8.2,27.6c0,0-7.3,2.9,2.6,5c6.1,1.3,24,5.9,24,5.9l1,0.3`;
-       const goose3Path =  `M63.7,99.6C52.3,99.6,43,90.3,43,78.9s9.3-20.7,20.7-20.7c10.6,0,34.4,0.1,35.8,9`;
 
       function placeTree(containerId, node, showStates) {
           placeBoard(containerId, node, boardHeight, boardWidth, showStates)
@@ -1931,22 +2025,6 @@ class Node:
       showStates = true;
       drawTree("#treeWithStates svg", showStates)
       
-
-
-      // x = 1700/12/2/2;
-      // y = 200
-      // for (let i = 0; i < 12; i++) {
-      //   placeEmptyBoard(containerId, x, y)
-      //   x = x + 1700/12;
-      // }
-      
-      // x = 0
-      // y = 300
-      // for (let i = 0; i < 24; i++) {
-      //   placeEmptyBoard(containerId, x, y)
-      //   x = x + 1700/24;
-      // }
-
     </script>
 </body>
 </html>
