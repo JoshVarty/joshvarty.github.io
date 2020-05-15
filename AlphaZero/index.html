@@ -459,14 +459,21 @@
       let boardWidth = 63;
       let interactiveRoot = new Node(860-32, 30, null, null, 1, {v : 0, n: 0, p: "None"})
       var runningInterval = null
+      var glowingPlayButton = d3.select('.play');
+
+
+      var glowInterval = window.setInterval(function () {
+        glowingPlayButton.classed("active", !glowingPlayButton.classed("active"))
+      }, 1000);
+
 
       function pause() {
         clearInterval(runningInterval);
       }
 
       function play(linePrefix) {
-        //clearInterval(glowInterval);
-        //glowingPlayButton.classed("active", false);
+        clearInterval(glowInterval);
+        glowingPlayButton.classed("active", false);
         clearInterval(runningInterval);
 
         runningInterval = setInterval(function () {
