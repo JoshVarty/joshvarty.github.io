@@ -362,11 +362,11 @@
         </p>
 
         <p>
-          After expanding the root node, we begin our very first MCTS simulation. Our goal here is to find an unvisited leaf node and EXPAND it as we did the root.
-          But how do we choose which node to expand? We greedily select the child node with the highest "Upper Confidence Bound (UCB) Score". 
+          After expanding the root node, we begin our very first MCTS simulation. Our goal here is to find an unvisited leaf node and EXPAND it.
+          But how do we choose which nodes to visit? We greedily select the child node with the highest "Upper Confidence Bound (UCB) Score". 
         </p>
 
-        <p>UCB Score attempts to take into account three things when producing a score:</p>
+        <p>UCB Score attempts to take three things into account when producing a score:</p>
         <ol>
           <li>The prior probability for the child action</li>
           <li>The value for the state the child action leads to</li>
@@ -390,22 +390,23 @@
         </figure>
 
 
-    <p>We repeatedly select child nodes using UCB Score to guide our search and use search_path to keep track of the nodes we've visited.
+    <p>We repeatedly select child nodes using UCB Score to guide our search and use <code>search_path</code> to keep track of the nodes we've visited.
       Once we reach a leaf node, we check whether or not the game has ended. If the game is complete we don't need to expand this leaf node.
       If the game is not complete, we expand the leaf node the same way as before: We ask the policy network for a set of priors and assign those to the newly created nodes.
     </p>
 
-    <p>After expanding the node, we enter the last stage of our MCTS simluation: Backup. In this stage, we update the statistics (visit_count and value_sum) for 
-      every node in the search_path. Updating these statistics will change their UCB score, and guide our next MCTS simulation.
+    <p>After expanding the node, we enter the last stage of our MCTS simluation: Backup. In this stage, we update the statistics (<code>visit_count</code> and <code>value_sum</code>) for 
+      every node in the <code>search_path</code>. Updating these statistics will change their UCB score, and guide our next MCTS simulation.
     </p>
 
     <p>After we've run the maximum number of simulations, we return the root of the game tree. The child of this root with the highest visit count is the "best" action. 
       If we're playing competitively this is probably the action we want to take. If we're training, we usually want to encourage more exploration and instead use the 
-      visit counts to create a probability distribution that we can sample from. Better moves are still more likely to be selected, but it gives our model the opportunity
-      to select potentially subpar moves and strengthens the breadth of its knowledge.
+      visit counts to create a probability distribution that we can sample from. The best moves is still likely to be selected, but it gives our model the opportunity
+      to explore other moves.
     </p>
 
     <h3>More resources</h3>
+    <p><a href="https://github.com/JoshVarty/AlphaZeroSimple">AlphaZero Simple</a> - Code on GitHub</p>
     <p><a href="https://www.gwern.net/docs/rl/2017-silver.pdf">Mastering the game of Go without human knowledge</a></p>
     <p><a href="https://arxiv.org/pdf/1712.01815.pdf">Mastering Chess and Shogi by Self-Play with a General Reinforcement Learning Algorithm</a></p>
 
