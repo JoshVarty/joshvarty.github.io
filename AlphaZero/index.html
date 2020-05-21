@@ -5,6 +5,10 @@
 </head>
 <body>
     <style>
+      dt-article { 
+        background: #000b2a;
+        color: #000b2a;
+      }
 
       .variable-info {
         color:#aaa;
@@ -458,7 +462,7 @@
       let MAX_STATE_NUMBER = 81;
       let boardHeight = 15;
       let boardWidth = 63;
-      let interactiveRoot = new Node(860-32, 30, null, null, 1, {v : 0, n: 0, p: "None"})
+      let interactiveRoot = new Node(860-32, 30, null, null, 1, {v : 0, n: 0, p: 0})
       var runningInterval = null
       var glowingPlayButton = d3.select('.play');
 
@@ -486,7 +490,7 @@
       function goState0(containerId) {
         let showStates = true;
 
-        interactiveRoot = new Node(860-32, 30, null, null, 1, {v : 0, n: 0, p: "None"})
+        interactiveRoot = new Node(860-32, 30, null, null, 1, {v : 0, n: 0, p: 0})
         let element = document.getElementById('line1-info');
         element.style.display = "inline"
         element.innerText = "(State: None)"
@@ -495,7 +499,7 @@
       function goState1(containerId) {
         let showStates = true;
 
-        interactiveRoot = new Node(860-32, 30, [0,0,0,0], null, 1, {v : 0, n: 0, p: "None"}) 
+        interactiveRoot = new Node(860-32, 30, [0,0,0,0], null, 1, {v : 0, n: 0, p: 0}) 
 
         let element = document.getElementById('line1-info');
         element.style.display = "inline"
